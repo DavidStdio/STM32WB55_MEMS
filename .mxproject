@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/STM32WB55_EVAL/Inc
+HeaderPath=C:/Users/E014283/STM32CubeIDE/workspace_1.0.2/STM32WB55_EVAL/Inc
 HeaderFiles=app_common.h;app_debug.h;app_conf.h;app_entry.h;hw_conf.h;hw_if.h;utilities_conf.h;stm32_lpm_if.h;app_ble.h;ble_conf.h;ble_dbg_conf.h;p2p_server_app.h;stm32wbxx_it.h;stm32wbxx_hal_conf.h;main.h;
-SourcePath=C:/STM32WB55_EVAL/Src
+SourcePath=C:/Users/E014283/STM32CubeIDE/workspace_1.0.2/STM32WB55_EVAL/Src
 SourceFiles=app_entry.c;app_debug.c;hw_timerserver.c;stm32_lpm_if.c;app_ble.c;p2p_server_app.c;hw_ipcc.c;stm32wbxx_it.c;stm32wbxx_hal_msp.c;main.c;
 
 [PreviousLibFiles]

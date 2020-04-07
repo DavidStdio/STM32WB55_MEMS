@@ -77,7 +77,18 @@ extern void MX_USART1_UART_Init(void);
 #endif
 
 /* USER CODE BEGIN PFP */
-
+void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
+{
+	switch(GPIO_Pin)
+	{
+	case BUTTON_SW1_Pin:
+		UTIL_SEQ_SetTask(1<<CFG_TASK_SW1_BUTTON_PUSHED_ID, CFG_SCH_PRIO_0);
+		break;
+	default:
+		break;
+	}
+	return;
+}
 /* USER CODE END PFP */
 
 /* Functions Definition ------------------------------------------------------*/
