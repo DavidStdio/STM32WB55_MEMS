@@ -41,10 +41,13 @@
  * Define Advertising parameters
  */
 #define CFG_ADV_BD_ADDRESS                (0)
-#define CFG_FAST_CONN_ADV_INTERVAL_MIN    (0x80)   /**< 80ms */
+#define CFG_FAST_CONN_ADV_INTERVAL_MIN    (0x0080)   /**< 80ms */
 #define CFG_FAST_CONN_ADV_INTERVAL_MAX    (0xA0)  /**< 100ms */
 #define CFG_LP_CONN_ADV_INTERVAL_MIN      (0x640) /**< 1s */
 #define CFG_LP_CONN_ADV_INTERVAL_MAX      (0xFA0) /**< 2.5s */
+#define ADV_TYPE                           ADV_IND
+#define BLE_ADDR_TYPE                      PUBLIC_ADDR
+#define ADV_FILTER                         NO_WHITE_LIST_USE
 
 /**
  * Define IO Authentication
