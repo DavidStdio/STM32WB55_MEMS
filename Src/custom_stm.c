@@ -25,6 +25,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 typedef struct{
+  uint16_t  CustomTempsrvcHdle;                   /**< TemperatureService handle */
+  uint16_t  CustomCrnttempHdle;                   /**< CurrentTemperature handle */
 }CustomContext_t;
 
 /* Private defines -----------------------------------------------------------*/
@@ -41,6 +43,7 @@ typedef struct{
 /* Private macros ------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
+static const uint8_t SizeCrnttemp=1;
 /**
  * START of Section BLE_DRIVER_CONTEXT
  */
@@ -71,6 +74,10 @@ do {\
  D973F2E1-B19E-11E2-9E96-0800200C9A66: Characteristic_1 128bits UUID
  D973F2E2-B19E-11E2-9E96-0800200C9A66: Characteristic_2 128bits UUID
  */
+//#define COPY_TEMPERATURESERVICE_UUID(uuid_struct)          COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0xcc,0x7a,0x48,0x2a,0x98,0x4a,0x7f,0x2e,0xd5,0xb3,0xe5,0x8f)
+#define COPY_TEMPERATURESERVICE_UUID(uuid_struct)          COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0x00,0x01,0x11,0xE1,0x9A,0xB4,0x00,0x02,0xA5,0xD5,0xC5,0x1B)
+//#define COPY_CURRENTTEMPERATURE_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0x8e,0x22,0x45,0x41,0x9d,0x4c,0x21,0xed,0xae,0x82,0xed,0x19)
+#define COPY_CURRENTTEMPERATURE_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x00,0x04,0x00,0x00,0x00,0x01,0x11,0xE1,0xAC,0x36,0x00,0x02,0xA5,0xD5,0xC5,0x1B)
 
 /**
  * @brief  Event handler
@@ -149,7 +156,38 @@ void SVCCTL_InitCustomSvc(void)
   /**
    *	Register the event handler to the BLE controller
    */
-  SVCCTL_RegisterSvcHandler(Custom_STM_Event_Handler);
+  //SVCCTL_RegisterSvcHandler(Custom_STM_Event_Handler);
+
+    /*
+     *          TemperatureService
+     *
+     * Max_Attribute_Records = 1 + 2*1 + 1*no_of_char_with_notify_or_indicate_property
+     * service_max_attribute_record = 1 for TemperatureService +
+     *                                2 for CurrentTemperature +
+     *                              = 3
+     */
+
+//    COPY_TEMPERATURESERVICE_UUID(uuid.Char_UUID_128);
+//    aci_gatt_add_service(UUID_TYPE_128,
+//                      (Service_UUID_t *) &uuid,
+//                      PRIMARY_SERVICE,
+//                      3,
+//                      &(CustomContext.CustomTempsrvcHdle));
+
+    /**
+     *  CurrentTemperature
+     */
+//    COPY_CURRENTTEMPERATURE_UUID(uuid.Char_UUID_128);
+//    aci_gatt_add_char(CustomContext.CustomTempsrvcHdle,
+//                      UUID_TYPE_128, &uuid,
+//                      SizeCrnttemp,
+//                      CHAR_PROP_NOTIFY, //CHAR_PROP_BROADCAST,
+//                      ATTR_PERMISSION_NONE,
+//                      GATT_NOTIFY_ATTRIBUTE_WRITE , //| GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP | GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP
+//                      0x10,
+//                      1,//CHAR_VALUE_LEN_CONSTANT
+//                      &(CustomContext.CustomCrnttempHdle));
+
 
   return;
 }
@@ -166,6 +204,17 @@ tBleStatus Custom_STM_App_Update_Char(Custom_STM_Char_Opcode_t CharOpcode, uint8
 
   switch(CharOpcode)
   {
+
+    case CUSTOM_STM_CRNTTEMP:
+      result = aci_gatt_update_char_value(CustomContext.CustomCrnttempHdle,
+                            CustomContext.CustomCrnttempHdle,
+                            0, /* charValOffset */
+                            SizeCrnttemp, /* charValueLen */
+                            (uint8_t *)  pPayload);
+    /* USER CODE BEGIN CUSTOM_STM_CRNTTEMP*/
+
+    /* USER CODE END CUSTOM_STM_CRNTTEMP*/
+      break;
 
     default:
       break;

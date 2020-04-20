@@ -35,6 +35,7 @@
 /* Private typedef -----------------------------------------------------------*/
 typedef struct
 {
+  /* TemperatureService */
 /* USER CODE BEGIN CUSTOM_APP_Context_t */
 
 /* USER CODE END CUSTOM_APP_Context_t */
@@ -76,6 +77,7 @@ uint8_t SecureReadData;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
+  /* TemperatureService */
 
 /* USER CODE BEGIN PFP */
 
@@ -92,6 +94,13 @@ void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotificatio
 /* USER CODE BEGIN CUSTOM_STM_App_Notification_Custom_Evt_Opcode */
 
 /* USER CODE END CUSTOM_STM_App_Notification_Custom_Evt_Opcode */
+
+  /* TemperatureService */
+    case CUSTOM_STM_CRNTTEMP_READ_EVT:
+/* USER CODE BEGIN CUSTOM_STM_CRNTTEMP_READ_EVT */
+
+/* USER CODE END CUSTOM_STM_CRNTTEMP_READ_EVT */
+      break;
 
     default:
 /* USER CODE BEGIN CUSTOM_STM_App_Notification_default */
@@ -159,6 +168,8 @@ void Custom_APP_Init(void)
  * LOCAL FUNCTIONS
  *
  *************************************************************/
+
+  /* TemperatureService */
 
 /* USER CODE BEGIN FD_LOCAL_FUNCTIONS*/
 

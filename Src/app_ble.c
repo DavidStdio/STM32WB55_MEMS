@@ -531,6 +531,7 @@ void APP_BLE_Init( void )
   return;
 }
 
+static uint32_t event_packet_event = 0;
 SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
 {
   hci_event_pckt *event_pckt;
@@ -541,7 +542,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
   tBleStatus ret = BLE_STATUS_INVALID_PARAMS;
 
   event_pckt = (hci_event_pckt*) ((hci_uart_pckt *) pckt)->data;
-
+ // event_packet_event = event_pckt->evt;
   /* PAIRING */
   aci_gap_numeric_comparison_value_event_rp0 *evt_numeric_value;
   aci_gap_pairing_complete_event_rp0 *pairing_complete;
@@ -959,7 +960,7 @@ static void Adv_Request(APP_BLE_ConnStatus_t New_Status)
         BLE_ADDR_TYPE,
         ADV_FILTER,
         sizeof(local_name),
-        (uint8_t*) &local_name,
+        (uint8_t*)local_name,
         0,
         0,
         0,
