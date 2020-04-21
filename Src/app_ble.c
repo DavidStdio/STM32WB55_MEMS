@@ -239,7 +239,7 @@ uint8_t index_con_int, mutex;
  */
 uint8_t ad_data[14] = {
 
-    13, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 0x01, 0x83, 0x00 /*  */, 0x04 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */,
+    13, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 0x01, 0x83, 0x00 /*  */, 0x04 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 
 };
 /**
  * Advertising Data
@@ -530,7 +530,6 @@ void APP_BLE_Init( void )
 /* USER CODE END APP_BLE_Init_2 */
   return;
 }
-//static volatile uint16_t blue_ev_code;
 
 SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
 {
