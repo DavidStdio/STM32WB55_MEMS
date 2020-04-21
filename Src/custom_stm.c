@@ -75,9 +75,10 @@ do {\
  D973F2E2-B19E-11E2-9E96-0800200C9A66: Characteristic_2 128bits UUID
  */
 //#define COPY_TEMPERATURESERVICE_UUID(uuid_struct)          COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0xcc,0x7a,0x48,0x2a,0x98,0x4a,0x7f,0x2e,0xd5,0xb3,0xe5,0x8f)
-#define COPY_TEMPERATURESERVICE_UUID(uuid_struct)          COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0x00,0x01,0x11,0xE1,0x9A,0xB4,0x00,0x02,0xA5,0xD5,0xC5,0x1B)
+//#define COPY_TEMPERATURESERVICE_UUID(uuid_struct)          COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0x00,0x01,0x11,0xE1,0x9A,0xB4,0x00,0x02,0xA5,0xD5,0xC5,0x1B)
+#define COPY_TEMPERATURESERVICE_UUID(uuid_struct)          COPY_UUID_128(uuid_struct,0x00,0x00,0x18,0x09,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0x80,0x5F,0x9B,0x34,0xFB)
 //#define COPY_CURRENTTEMPERATURE_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0x8e,0x22,0x45,0x41,0x9d,0x4c,0x21,0xed,0xae,0x82,0xed,0x19)
-#define COPY_CURRENTTEMPERATURE_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x00,0x04,0x00,0x00,0x00,0x01,0x11,0xE1,0xAC,0x36,0x00,0x02,0xA5,0xD5,0xC5,0x1B)
+#define COPY_CURRENTTEMPERATURE_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x00,0x00,0x2A,0x6E,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0x80,0x5F,0x9B,0x34,0xFB)
 
 /**
  * @brief  Event handler
@@ -151,8 +152,8 @@ static SVCCTL_EvtAckStatus_t Custom_STM_Event_Handler(void *Event)
 void SVCCTL_InitCustomSvc(void)
 {
  
-  //Char_UUID_t  uuid;
-  uint16_t uuid16;
+  Char_UUID_t  uuid;
+  //uint16_t uuid16;
   /**
    *	Register the event handler to the BLE controller
    */
@@ -168,10 +169,10 @@ void SVCCTL_InitCustomSvc(void)
      *                              = 4
      */
 
-    //COPY_TEMPERATURESERVICE_UUID(uuid.Char_UUID_128);
-  	uuid16 = HEALTH_THERMOMETER_SERVICE_UUID;
-    aci_gatt_add_service(UUID_TYPE_16,
-                      (Service_UUID_t *) &uuid16,
+    COPY_TEMPERATURESERVICE_UUID(uuid.Char_UUID_128);
+  	//uuid16 = HEALTH_THERMOMETER_SERVICE_UUID;
+    aci_gatt_add_service(UUID_TYPE_128                              ,
+                      (Service_UUID_t *) &uuid,
                       PRIMARY_SERVICE,
                       4,
                       &(CustomContext.CustomTempsrvcHdle));
@@ -179,11 +180,11 @@ void SVCCTL_InitCustomSvc(void)
     /**
      *  CurrentTemperature
      */
-    //COPY_CURRENTTEMPERATURE_UUID(uuid.Char_UUID_128);
-    uuid16 = TEMPERATURE_UUID;
+    COPY_CURRENTTEMPERATURE_UUID(uuid.Char_UUID_128);
+    //uuid16 = TEMPERATURE_UUID;
 
     aci_gatt_add_char(CustomContext.CustomTempsrvcHdle,
-                      UUID_TYPE_16, (Char_UUID_t*)&uuid16,
+                      UUID_TYPE_128, (Char_UUID_t*)&uuid,
                       2,//SizeCrnttemp,
                       /*CHAR_PROP_BROADCAST |*/ CHAR_PROP_NOTIFY,
                       ATTR_PERMISSION_NONE,
