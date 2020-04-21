@@ -179,11 +179,11 @@ void SVCCTL_InitCustomSvc(void)
     aci_gatt_add_char(CustomContext.CustomTempsrvcHdle,
                       UUID_TYPE_128, &uuid,
                       SizeCrnttemp,
-                      /*CHAR_PROP_BROADCAST | */CHAR_PROP_NOTIFY,
+                      CHAR_PROP_NOTIFY,
                       ATTR_PERMISSION_NONE,
-                      GATT_NOTIFY_ATTRIBUTE_WRITE,// | GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP | GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
+                      GATT_NOTIFY_ATTRIBUTE_WRITE | GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP | GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
                       0x10,
-                      1,//CHAR_VALUE_LEN_CONSTANT,
+                      CHAR_VALUE_LEN_VARIABLE,
                       &(CustomContext.CustomCrnttempHdle));
 
   return;
