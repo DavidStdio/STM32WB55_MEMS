@@ -35,8 +35,8 @@
 /* Private typedef -----------------------------------------------------------*/
 typedef struct
 {
-  /* TemperatureService */
-  uint8_t               Crnttemp_Notification_Status;
+  /* Environmental_Service_STM */
+  uint8_t               Temp_Notification_Status;
 /* USER CODE BEGIN CUSTOM_APP_Context_t */
 
 /* USER CODE END CUSTOM_APP_Context_t */
@@ -78,9 +78,9 @@ uint8_t SecureReadData;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-  /* TemperatureService */
-static void Custom_Crnttemp_Update_Char(void);
-static void Custom_Crnttemp_Send_Notification(void);
+  /* Environmental_Service_STM */
+static void Custom_Temp_Update_Char(void);
+static void Custom_Temp_Send_Notification(void);
 
 /* USER CODE BEGIN PFP */
 
@@ -98,23 +98,35 @@ void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotificatio
 
 /* USER CODE END CUSTOM_STM_App_Notification_Custom_Evt_Opcode */
 
-  /* TemperatureService */
-    case CUSTOM_STM_CRNTTEMP_READ_EVT:
-/* USER CODE BEGIN CUSTOM_STM_CRNTTEMP_READ_EVT */
+  /* Environmental_Service_STM */
+    case CUSTOM_STM_TEMP_READ_EVT:
+/* USER CODE BEGIN CUSTOM_STM_TEMP_READ_EVT */
 
-/* USER CODE END CUSTOM_STM_CRNTTEMP_READ_EVT */
+/* USER CODE END CUSTOM_STM_TEMP_READ_EVT */
       break;
 
-    case CUSTOM_STM_CRNTTEMP_NOTIFY_ENABLED_EVT:
-/* USER CODE BEGIN CUSTOM_STM_CRNTTEMP_NOTIFY_ENABLED_EVT */
+    case CUSTOM_STM_TEMP_NOTIFY_ENABLED_EVT:
+/* USER CODE BEGIN CUSTOM_STM_TEMP_NOTIFY_ENABLED_EVT */
 
-/* USER CODE END CUSTOM_STM_CRNTTEMP_NOTIFY_ENABLED_EVT */
+/* USER CODE END CUSTOM_STM_TEMP_NOTIFY_ENABLED_EVT */
       break;
 
-    case CUSTOM_STM_CRNTTEMP_NOTIFY_DISABLED_EVT:
-/* USER CODE BEGIN CUSTOM_STM_CRNTTEMP_NOTIFY_DISABLED_EVT */
+    case CUSTOM_STM_TEMP_NOTIFY_DISABLED_EVT:
+/* USER CODE BEGIN CUSTOM_STM_TEMP_NOTIFY_DISABLED_EVT */
 
-/* USER CODE END CUSTOM_STM_CRNTTEMP_NOTIFY_DISABLED_EVT */
+/* USER CODE END CUSTOM_STM_TEMP_NOTIFY_DISABLED_EVT */
+      break;
+
+    case CUSTOM_STM_CHECK_READ_EVT:
+/* USER CODE BEGIN CUSTOM_STM_CHECK_READ_EVT */
+
+/* USER CODE END CUSTOM_STM_CHECK_READ_EVT */
+      break;
+
+    case CUSTOM_STM_CHECK_WRITE_EVT:
+/* USER CODE BEGIN CUSTOM_STM_CHECK_WRITE_EVT */
+
+/* USER CODE END CUSTOM_STM_CHECK_WRITE_EVT */
       break;
 
     default:
@@ -184,18 +196,18 @@ void Custom_APP_Init(void)
  *
  *************************************************************/
 
-  /* TemperatureService */
-void Custom_Crnttemp_Update_Char(void) //Property Read
+  /* Environmental_Service_STM */
+void Custom_Temp_Update_Char(void) //Property Read
 { 
-  Custom_STM_App_Update_Char(CUSTOM_STM_CRNTTEMP, (uint8_t *)UpdateCharData);
+  Custom_STM_App_Update_Char(CUSTOM_STM_TEMP, (uint8_t *)UpdateCharData);
   return;
 }
 
-void Custom_Crnttemp_Send_Notification(void) // Property Notification
+void Custom_Temp_Send_Notification(void) // Property Notification
 { 
-  if(Custom_App_Context.Crnttemp_Notification_Status)
+  if(Custom_App_Context.Temp_Notification_Status)
   {     
-    Custom_STM_App_Update_Char(CUSTOM_STM_CRNTTEMP, (uint8_t *)NotifyCharData);
+    Custom_STM_App_Update_Char(CUSTOM_STM_TEMP, (uint8_t *)NotifyCharData);
   }
   else
   {

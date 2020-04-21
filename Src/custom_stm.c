@@ -25,8 +25,9 @@
 
 /* Private typedef -----------------------------------------------------------*/
 typedef struct{
-  uint16_t  CustomTempsrvcHdle;                   /**< TemperatureService handle */
-  uint16_t  CustomCrnttempHdle;                   /**< CurrentTemperature handle */
+  uint16_t  CustomEnvironmentalsrvcHdle;                   /**< Environmental_Service_STM handle */
+  uint16_t  CustomTempHdle;                   /**< Temperature handle */
+  uint16_t  CustomCheckHdle;                   /**< Template handle */
 }CustomContext_t;
 
 /* Private defines -----------------------------------------------------------*/
@@ -43,7 +44,8 @@ typedef struct{
 /* Private macros ------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-static const uint8_t SizeCrnttemp=2;
+static const uint8_t SizeTemp=2;
+static const uint8_t SizeCheck=1;
 /**
  * START of Section BLE_DRIVER_CONTEXT
  */
@@ -74,8 +76,10 @@ do {\
  D973F2E1-B19E-11E2-9E96-0800200C9A66: Characteristic_1 128bits UUID
  D973F2E2-B19E-11E2-9E96-0800200C9A66: Characteristic_2 128bits UUID
  */
-#define COPY_TEMPERATURESERVICE_UUID(uuid_struct)          COPY_UUID_128(uuid_struct,0x00,0x00,0x18,0x09,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0x80,0x5F,0x9B,0x34,0xFB)
-#define COPY_CURRENTTEMPERATURE_UUID(uuid_struct)    	   COPY_UUID_128(uuid_struct,0x00,0x00,0x2A,0x6E,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0x80,0x5F,0x9B,0x34,0xFB)
+#define COPY_ENVIRONMENTAL_SERVICE_STM_UUID(uuid_struct)          COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0x00,0x01,0x11,0xE1,0x9A,0xB4,0x00,0x02,0xA5,0xD5,0xC5,0x1B)
+#define COPY_TEMPERATURE_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x00,0x04,0x00,0x00,0x00,0x01,0x11,0xE1,0xAC,0x36,0x00,0x02,0xA5,0xD5,0xC5,0x1B)
+#define COPY_TEMPLATE_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x00,0x00,0xAA,0xCC,0x8E,0x22,0x45,0x41,0x9D,0x4c,0x21,0xED,0xAE,0x82,0xED,0x19)
+
 /**
  * @brief  Event handler
  * @param  Event: Address of the buffer holding the Event
@@ -156,35 +160,49 @@ void SVCCTL_InitCustomSvc(void)
   SVCCTL_RegisterSvcHandler(Custom_STM_Event_Handler);
 
     /*
-     *          TemperatureService
+     *          Environmental_Service_STM
      *
-     * Max_Attribute_Records = 1 + 2*1 + 1*no_of_char_with_notify_or_indicate_property
-     * service_max_attribute_record = 1 for TemperatureService +
-     *                                2 for CurrentTemperature +
-     *                                1 for CurrentTemperature configuration descriptor +
-     *                              = 4
+     * Max_Attribute_Records = 1 + 2*2 + 1*no_of_char_with_notify_or_indicate_property
+     * service_max_attribute_record = 1 for Environmental_Service_STM +
+     *                                2 for Temperature +
+     *                                2 for Template +
+     *                                1 for Temperature configuration descriptor +
+     *                              = 6
      */
 
-    COPY_TEMPERATURESERVICE_UUID(uuid.Char_UUID_128);
+    COPY_ENVIRONMENTAL_SERVICE_STM_UUID(uuid.Char_UUID_128);
     aci_gatt_add_service(UUID_TYPE_128,
                       (Service_UUID_t *) &uuid,
                       PRIMARY_SERVICE,
-                      4,
-                      &(CustomContext.CustomTempsrvcHdle));
+                      6,
+                      &(CustomContext.CustomEnvironmentalsrvcHdle));
 
     /**
-     *  CurrentTemperature
+     *  Temperature
      */
-    COPY_CURRENTTEMPERATURE_UUID(uuid.Char_UUID_128);
-    aci_gatt_add_char(CustomContext.CustomTempsrvcHdle,
+    COPY_TEMPERATURE_UUID(uuid.Char_UUID_128);
+    aci_gatt_add_char(CustomContext.CustomEnvironmentalsrvcHdle,
                       UUID_TYPE_128, &uuid,
-                      SizeCrnttemp,
+                      SizeTemp,
                       CHAR_PROP_NOTIFY,
                       ATTR_PERMISSION_NONE,
                       GATT_NOTIFY_ATTRIBUTE_WRITE | GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP | GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
                       0x10,
                       CHAR_VALUE_LEN_VARIABLE,
-                      &(CustomContext.CustomCrnttempHdle));
+                      &(CustomContext.CustomTempHdle));
+    /**
+     *  Template
+     */
+    COPY_TEMPLATE_UUID(uuid.Char_UUID_128);
+    aci_gatt_add_char(CustomContext.CustomEnvironmentalsrvcHdle,
+                      UUID_TYPE_128, &uuid,
+                      SizeCheck,
+                      CHAR_PROP_WRITE,
+                      ATTR_PERMISSION_NONE,
+                      GATT_NOTIFY_ATTRIBUTE_WRITE | GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP | GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
+                      0x10,
+                      CHAR_VALUE_LEN_CONSTANT,
+                      &(CustomContext.CustomCheckHdle));
 
   return;
 }
@@ -202,15 +220,26 @@ tBleStatus Custom_STM_App_Update_Char(Custom_STM_Char_Opcode_t CharOpcode, uint8
   switch(CharOpcode)
   {
 
-    case CUSTOM_STM_CRNTTEMP:
-      result = aci_gatt_update_char_value(CustomContext.CustomCrnttempHdle,
-                            CustomContext.CustomCrnttempHdle,
+    case CUSTOM_STM_TEMP:
+      result = aci_gatt_update_char_value(CustomContext.CustomTempHdle,
+                            CustomContext.CustomTempHdle,
                             0, /* charValOffset */
-                            SizeCrnttemp, /* charValueLen */
+                            SizeTemp, /* charValueLen */
                             (uint8_t *)  pPayload);
-    /* USER CODE BEGIN CUSTOM_STM_CRNTTEMP*/
+    /* USER CODE BEGIN CUSTOM_STM_TEMP*/
 
-    /* USER CODE END CUSTOM_STM_CRNTTEMP*/
+    /* USER CODE END CUSTOM_STM_TEMP*/
+      break;
+
+    case CUSTOM_STM_CHECK:
+      result = aci_gatt_update_char_value(CustomContext.CustomCheckHdle,
+                            CustomContext.CustomCheckHdle,
+                            0, /* charValOffset */
+                            SizeCheck, /* charValueLen */
+                            (uint8_t *)  pPayload);
+    /* USER CODE BEGIN CUSTOM_STM_CHECK*/
+
+    /* USER CODE END CUSTOM_STM_CHECK*/
       break;
 
     default:

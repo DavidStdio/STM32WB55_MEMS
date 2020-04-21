@@ -32,16 +32,20 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 typedef enum
 {
-  /* TemperatureService */
-  CUSTOM_STM_CRNTTEMP,
+  /* Environmental_Service_STM */
+  CUSTOM_STM_TEMP,
+  CUSTOM_STM_CHECK,
 } Custom_STM_Char_Opcode_t;
 
 typedef enum
 {
-  /* CurrentTemperature */
-  CUSTOM_STM_CRNTTEMP_READ_EVT,
-  CUSTOM_STM_CRNTTEMP_NOTIFY_ENABLED_EVT,
-  CUSTOM_STM_CRNTTEMP_NOTIFY_DISABLED_EVT,
+  /* Temperature */
+  CUSTOM_STM_TEMP_READ_EVT,
+  CUSTOM_STM_TEMP_NOTIFY_ENABLED_EVT,
+  CUSTOM_STM_TEMP_NOTIFY_DISABLED_EVT,
+  /* Template */
+  CUSTOM_STM_CHECK_READ_EVT,
+  CUSTOM_STM_CHECK_WRITE_EVT,
 
   CUSTOM_STM_BOOT_REQUEST_EVT
 } Custom_STM_Opcode_evt_t;
