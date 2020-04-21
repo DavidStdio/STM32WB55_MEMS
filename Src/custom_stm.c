@@ -151,12 +151,12 @@ static SVCCTL_EvtAckStatus_t Custom_STM_Event_Handler(void *Event)
 void SVCCTL_InitCustomSvc(void)
 {
  
-  Char_UUID_t  uuid;
-
+  //Char_UUID_t  uuid;
+  uint16_t uuid16;
   /**
    *	Register the event handler to the BLE controller
    */
-  //SVCCTL_RegisterSvcHandler(Custom_STM_Event_Handler);
+  SVCCTL_RegisterSvcHandler(Custom_STM_Event_Handler);
 
     /*
      *          TemperatureService
@@ -164,30 +164,33 @@ void SVCCTL_InitCustomSvc(void)
      * Max_Attribute_Records = 1 + 2*1 + 1*no_of_char_with_notify_or_indicate_property
      * service_max_attribute_record = 1 for TemperatureService +
      *                                2 for CurrentTemperature +
-     *                              = 3
+     *                                1 for CurrentTemperature configuration descriptor +
+     *                              = 4
      */
 
-//    COPY_TEMPERATURESERVICE_UUID(uuid.Char_UUID_128);
-//    aci_gatt_add_service(UUID_TYPE_128,
-//                      (Service_UUID_t *) &uuid,
-//                      PRIMARY_SERVICE,
-//                      3,
-//                      &(CustomContext.CustomTempsrvcHdle));
+    //COPY_TEMPERATURESERVICE_UUID(uuid.Char_UUID_128);
+  	uuid16 = HEALTH_THERMOMETER_SERVICE_UUID;
+    aci_gatt_add_service(UUID_TYPE_16,
+                      (Service_UUID_t *) &uuid16,
+                      PRIMARY_SERVICE,
+                      4,
+                      &(CustomContext.CustomTempsrvcHdle));
 
     /**
      *  CurrentTemperature
      */
-//    COPY_CURRENTTEMPERATURE_UUID(uuid.Char_UUID_128);
-//    aci_gatt_add_char(CustomContext.CustomTempsrvcHdle,
-//                      UUID_TYPE_128, &uuid,
-//                      SizeCrnttemp,
-//                      CHAR_PROP_NOTIFY, //CHAR_PROP_BROADCAST,
-//                      ATTR_PERMISSION_NONE,
-//                      GATT_NOTIFY_ATTRIBUTE_WRITE , //| GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP | GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP
-//                      0x10,
-//                      1,//CHAR_VALUE_LEN_CONSTANT
-//                      &(CustomContext.CustomCrnttempHdle));
+    //COPY_CURRENTTEMPERATURE_UUID(uuid.Char_UUID_128);
+    uuid16 = TEMPERATURE_UUID;
 
+    aci_gatt_add_char(CustomContext.CustomTempsrvcHdle,
+                      UUID_TYPE_16, (Char_UUID_t*)&uuid16,
+                      2,//SizeCrnttemp,
+                      /*CHAR_PROP_BROADCAST |*/ CHAR_PROP_NOTIFY,
+                      ATTR_PERMISSION_NONE,
+                      GATT_NOTIFY_ATTRIBUTE_WRITE /*| GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP | GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP*/,
+                      0x10,
+                      1,//CHAR_VALUE_LEN_CONSTANT,
+                      &(CustomContext.CustomCrnttempHdle));
 
   return;
 }

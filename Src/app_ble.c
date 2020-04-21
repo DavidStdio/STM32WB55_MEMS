@@ -239,7 +239,7 @@ uint8_t index_con_int, mutex;
  */
 uint8_t ad_data[14] = {
 
-    13, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 0x01, 0x83, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 
+    13, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 0x01, 0x83, 0x00 /*  */, 0x04 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */,
 };
 /**
  * Advertising Data
@@ -530,8 +530,8 @@ void APP_BLE_Init( void )
 /* USER CODE END APP_BLE_Init_2 */
   return;
 }
+//static volatile uint16_t blue_ev_code;
 
-static uint32_t event_packet_event = 0;
 SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
 {
   hci_event_pckt *event_pckt;
@@ -542,7 +542,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
   tBleStatus ret = BLE_STATUS_INVALID_PARAMS;
 
   event_pckt = (hci_event_pckt*) ((hci_uart_pckt *) pckt)->data;
- // event_packet_event = event_pckt->evt;
+
   /* PAIRING */
   aci_gap_numeric_comparison_value_event_rp0 *evt_numeric_value;
   aci_gap_pairing_complete_event_rp0 *pairing_complete;
@@ -675,7 +675,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
     case EVT_VENDOR:
       blue_evt = (evt_blue_aci*) event_pckt->data;
       /* USER CODE BEGIN EVT_VENDOR */
-
+      //blue_ev_code = blue_evt->ecode;
       /* USER CODE END EVT_VENDOR */
       switch (blue_evt->ecode)
       {
@@ -703,7 +703,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
         case ACI_HAL_END_OF_RADIO_ACTIVITY_VSEVT_CODE:
         /* USER CODE BEGIN RADIO_ACTIVITY_EVENT*/
         	HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
-        	HAL_Delay(15);
+        	HAL_Delay(25);
         	HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
 
         /* USER CODE END RADIO_ACTIVITY_EVENT*/

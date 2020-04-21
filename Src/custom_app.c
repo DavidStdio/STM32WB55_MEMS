@@ -36,6 +36,7 @@
 typedef struct
 {
   /* TemperatureService */
+  uint8_t               Crnttemp_Notification_Status;
 /* USER CODE BEGIN CUSTOM_APP_Context_t */
 
 /* USER CODE END CUSTOM_APP_Context_t */
@@ -78,6 +79,8 @@ uint8_t SecureReadData;
 
 /* Private function prototypes -----------------------------------------------*/
   /* TemperatureService */
+static void Custom_Crnttemp_Update_Char(void);
+static void Custom_Crnttemp_Send_Notification(void);
 
 /* USER CODE BEGIN PFP */
 
@@ -100,6 +103,18 @@ void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotificatio
 /* USER CODE BEGIN CUSTOM_STM_CRNTTEMP_READ_EVT */
 
 /* USER CODE END CUSTOM_STM_CRNTTEMP_READ_EVT */
+      break;
+
+    case CUSTOM_STM_CRNTTEMP_NOTIFY_ENABLED_EVT:
+/* USER CODE BEGIN CUSTOM_STM_CRNTTEMP_NOTIFY_ENABLED_EVT */
+
+/* USER CODE END CUSTOM_STM_CRNTTEMP_NOTIFY_ENABLED_EVT */
+      break;
+
+    case CUSTOM_STM_CRNTTEMP_NOTIFY_DISABLED_EVT:
+/* USER CODE BEGIN CUSTOM_STM_CRNTTEMP_NOTIFY_DISABLED_EVT */
+
+/* USER CODE END CUSTOM_STM_CRNTTEMP_NOTIFY_DISABLED_EVT */
       break;
 
     default:
@@ -170,6 +185,24 @@ void Custom_APP_Init(void)
  *************************************************************/
 
   /* TemperatureService */
+void Custom_Crnttemp_Update_Char(void) //Property Read
+{ 
+  Custom_STM_App_Update_Char(CUSTOM_STM_CRNTTEMP, (uint8_t *)UpdateCharData);
+  return;
+}
+
+void Custom_Crnttemp_Send_Notification(void) // Property Notification
+{ 
+  if(Custom_App_Context.Crnttemp_Notification_Status)
+  {     
+    Custom_STM_App_Update_Char(CUSTOM_STM_CRNTTEMP, (uint8_t *)NotifyCharData);
+  }
+  else
+  {
+    APP_DBG_MSG("-- CUSTOM APPLICATION : CAN'T INFORM CLIENT -  NOTIFICATION DISABLED\n "); 
+  }
+  return;
+}
 
 /* USER CODE BEGIN FD_LOCAL_FUNCTIONS*/
 
