@@ -44,7 +44,7 @@ typedef struct{
 /* Private macros ------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-static const uint8_t SizeTemp=2;
+static const uint8_t SizeTemp=4;
 static const uint8_t SizeCheck=1;
 /**
  * START of Section BLE_DRIVER_CONTEXT
@@ -106,7 +106,30 @@ static SVCCTL_EvtAckStatus_t Custom_STM_Event_Handler(void *Event)
 
         case EVT_BLUE_GATT_ATTRIBUTE_MODIFIED:
           /* USER CODE BEGIN EVT_BLUE_GATT_ATTRIBUTE_MODIFIED */
+        {
+            attribute_modified = (aci_gatt_attribute_modified_event_rp0*)blue_evt->data;
+              if(attribute_modified->Attr_Handle == (CustomContext.CustomTempHdle + 2))
+              {
+                /**
+                 * Descriptor handle
+                 */
+                return_value = SVCCTL_EvtAckFlowEnable;
+                /**
+                 * Notify to application
+                 */
+                if(attribute_modified->Attr_Data[0] & COMSVC_Notification)
+                {
+                  Notification.Custom_Evt_Opcode = CUSTOM_STM_TEMP_NOTIFY_ENABLED_EVT;
+                  Custom_STM_App_Notification(&Notification);
+                }
+                else
+                {
+                  Notification.Custom_Evt_Opcode = CUSTOM_STM_TEMP_NOTIFY_DISABLED_EVT;
+				  Custom_STM_App_Notification(&Notification);
+                }
+              }
 
+        }
           /* USER CODE END EVT_BLUE_GATT_ATTRIBUTE_MODIFIED */
           break;
         case EVT_BLUE_GATT_READ_PERMIT_REQ :
@@ -221,7 +244,7 @@ tBleStatus Custom_STM_App_Update_Char(Custom_STM_Char_Opcode_t CharOpcode, uint8
   {
 
     case CUSTOM_STM_TEMP:
-      result = aci_gatt_update_char_value(CustomContext.CustomTempHdle,
+      result = aci_gatt_update_char_value(CustomContext.CustomEnvironmentalsrvcHdle,
                             CustomContext.CustomTempHdle,
                             0, /* charValOffset */
                             SizeTemp, /* charValueLen */
@@ -232,7 +255,7 @@ tBleStatus Custom_STM_App_Update_Char(Custom_STM_Char_Opcode_t CharOpcode, uint8
       break;
 
     case CUSTOM_STM_CHECK:
-      result = aci_gatt_update_char_value(CustomContext.CustomCheckHdle,
+      result = aci_gatt_update_char_value(CustomContext.CustomEnvironmentalsrvcHdle,
                             CustomContext.CustomCheckHdle,
                             0, /* charValOffset */
                             SizeCheck, /* charValueLen */

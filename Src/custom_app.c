@@ -29,7 +29,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+typedef struct
+{
+	uint16_t TimeStamp;
+	uint16_t Value;
+}Custom_TemperatureCharValue_t;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,7 +42,9 @@ typedef struct
   /* Environmental_Service_STM */
   uint8_t               Temp_Notification_Status;
 /* USER CODE BEGIN CUSTOM_APP_Context_t */
-
+  Custom_TemperatureCharValue_t Temperature;
+  int16_t ChangeStep;
+  uint8_t Update_timer_Id;
 /* USER CODE END CUSTOM_APP_Context_t */
 
   uint16_t              ConnectionHandle;
@@ -50,7 +56,10 @@ typedef struct
 
 /* Private defines ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define TEMPERATURE_CHANGE_STEP    		  10
+#define TEMPERATURE_CHANGE_PERIOD  		  (0.1*1000*1000/CFG_TS_TICK_VAL) /*100ms*/
+#define TEMPERATURE_VALUE_MAX_THRESHOLD   350
+#define TEMPERATURE_VALUE_MIN_THRESHOLD   100
 /* USER CODE END PD */
 
 /* Private macros -------------------------------------------------------------*/
@@ -83,7 +92,7 @@ static void Custom_Temp_Update_Char(void);
 static void Custom_Temp_Send_Notification(void);
 
 /* USER CODE BEGIN PFP */
-
+static void Custom_TemperatureChange_Timer_Callback(void);
 /* USER CODE END PFP */
 
 /* Functions Definition ------------------------------------------------------*/
@@ -107,13 +116,15 @@ void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotificatio
 
     case CUSTOM_STM_TEMP_NOTIFY_ENABLED_EVT:
 /* USER CODE BEGIN CUSTOM_STM_TEMP_NOTIFY_ENABLED_EVT */
-
+    	Custom_App_Context.Temp_Notification_Status = 1;
+    	HW_TS_Start(Custom_App_Context.Update_timer_Id, TEMPERATURE_CHANGE_PERIOD);
 /* USER CODE END CUSTOM_STM_TEMP_NOTIFY_ENABLED_EVT */
       break;
 
     case CUSTOM_STM_TEMP_NOTIFY_DISABLED_EVT:
 /* USER CODE BEGIN CUSTOM_STM_TEMP_NOTIFY_DISABLED_EVT */
-
+    	Custom_App_Context.Temp_Notification_Status = 0;
+    	HW_TS_Stop(Custom_App_Context.Update_timer_Id);
 /* USER CODE END CUSTOM_STM_TEMP_NOTIFY_DISABLED_EVT */
       break;
 
@@ -181,13 +192,21 @@ void Custom_APP_Notification(Custom_App_ConnHandle_Not_evt_t *pNotification)
 void Custom_APP_Init(void)
 {
 /* USER CODE BEGIN CUSTOM_APP_Init */
+   	Custom_App_Context.Temp_Notification_Status = 0;
+	Custom_App_Context.Temperature.TimeStamp = 0;
+	Custom_App_Context.Temperature.Value = 0;
+	Custom_App_Context.ChangeStep = TEMPERATURE_CHANGE_STEP;
+	UTIL_SEQ_RegTask( 1<<CFG_TASK_NOTIFY_TEMPERATURE, UTIL_SEQ_RFU, Custom_Temp_Send_Notification);
 
+	HW_TS_Create(CFG_TIM_PROC_ID_ISR,
+			&(Custom_App_Context.Update_timer_Id),
+			hw_ts_Repeated,
+			Custom_TemperatureChange_Timer_Callback);
 /* USER CODE END CUSTOM_APP_Init */
   return;
 }
 
 /* USER CODE BEGIN FD */
-
 /* USER CODE END FD */
 
 /*************************************************************
@@ -205,9 +224,26 @@ void Custom_Temp_Update_Char(void) //Property Read
 
 void Custom_Temp_Send_Notification(void) // Property Notification
 { 
+	  NotifyCharData[0] = (uint8_t)(Custom_App_Context.Temperature.TimeStamp & 0x00FF);
+	  NotifyCharData[1] = (uint8_t)(Custom_App_Context.Temperature.TimeStamp >> 8);
+	  NotifyCharData[2] = (uint8_t)(Custom_App_Context.Temperature.Value & 0x00FF);
+	  NotifyCharData[3] = (uint8_t)(Custom_App_Context.Temperature.Value >> 8);
+
+	  Custom_App_Context.Temperature.Value += Custom_App_Context.ChangeStep;
+	  Custom_App_Context.Temperature.TimeStamp += TEMPERATURE_CHANGE_STEP;
+
+	  if(Custom_App_Context.Temperature.Value > TEMPERATURE_VALUE_MAX_THRESHOLD )
+	  {
+			Custom_App_Context.ChangeStep = -TEMPERATURE_CHANGE_STEP;
+	  }
+	  else
+	  {
+			Custom_App_Context.ChangeStep = +TEMPERATURE_CHANGE_STEP;
+	  }
+
   if(Custom_App_Context.Temp_Notification_Status)
-  {     
-    Custom_STM_App_Update_Char(CUSTOM_STM_TEMP, (uint8_t *)NotifyCharData);
+  {
+	  Custom_STM_App_Update_Char(CUSTOM_STM_TEMP, (uint8_t *)NotifyCharData);
   }
   else
   {
@@ -217,7 +253,10 @@ void Custom_Temp_Send_Notification(void) // Property Notification
 }
 
 /* USER CODE BEGIN FD_LOCAL_FUNCTIONS*/
-
+static void Custom_TemperatureChange_Timer_Callback(void)
+{
+	UTIL_SEQ_SetTask( 1<<CFG_TASK_NOTIFY_TEMPERATURE, CFG_SCH_PRIO_0);
+}
 /* USER CODE END FD_LOCAL_FUNCTIONS*/
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
