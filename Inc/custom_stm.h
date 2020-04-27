@@ -34,7 +34,7 @@ typedef enum
 {
   /* Environmental_Service_STM */
   CUSTOM_STM_TEMP,
-  CUSTOM_STM_CHECK,
+  CUSTOM_STM_TEMPLATE,
 } Custom_STM_Char_Opcode_t;
 
 typedef enum
@@ -44,8 +44,8 @@ typedef enum
   CUSTOM_STM_TEMP_NOTIFY_ENABLED_EVT,
   CUSTOM_STM_TEMP_NOTIFY_DISABLED_EVT,
   /* Template */
-  CUSTOM_STM_CHECK_READ_EVT,
-  CUSTOM_STM_CHECK_WRITE_EVT,
+  CUSTOM_STM_TEMPLATE_READ_EVT,
+  CUSTOM_STM_TEMPLATE_WRITE_EVT,
 
   CUSTOM_STM_BOOT_REQUEST_EVT
 } Custom_STM_Opcode_evt_t;

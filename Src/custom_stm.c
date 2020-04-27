@@ -27,7 +27,7 @@
 typedef struct{
   uint16_t  CustomEnvironmentalsrvcHdle;                   /**< Environmental_Service_STM handle */
   uint16_t  CustomTempHdle;                   /**< Temperature handle */
-  uint16_t  CustomCheckHdle;                   /**< Template handle */
+  uint16_t  CustomTemplateHdle;                   /**< Template handle */
 }CustomContext_t;
 
 /* Private defines -----------------------------------------------------------*/
@@ -45,7 +45,7 @@ typedef struct{
 
 /* Private variables ---------------------------------------------------------*/
 static const uint8_t SizeTemp=4;
-static const uint8_t SizeCheck=1;
+static const uint8_t SizeTemplate=1;
 /**
  * START of Section BLE_DRIVER_CONTEXT
  */
@@ -219,13 +219,13 @@ void SVCCTL_InitCustomSvc(void)
     COPY_TEMPLATE_UUID(uuid.Char_UUID_128);
     aci_gatt_add_char(CustomContext.CustomEnvironmentalsrvcHdle,
                       UUID_TYPE_128, &uuid,
-                      SizeCheck,
+                      SizeTemplate,
                       CHAR_PROP_WRITE,
                       ATTR_PERMISSION_NONE,
                       GATT_NOTIFY_ATTRIBUTE_WRITE | GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP | GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
                       0x10,
                       CHAR_VALUE_LEN_CONSTANT,
-                      &(CustomContext.CustomCheckHdle));
+                      &(CustomContext.CustomTemplateHdle));
 
   return;
 }
@@ -254,15 +254,15 @@ tBleStatus Custom_STM_App_Update_Char(Custom_STM_Char_Opcode_t CharOpcode, uint8
     /* USER CODE END CUSTOM_STM_TEMP*/
       break;
 
-    case CUSTOM_STM_CHECK:
+    case CUSTOM_STM_TEMPLATE:
       result = aci_gatt_update_char_value(CustomContext.CustomEnvironmentalsrvcHdle,
-                            CustomContext.CustomCheckHdle,
+                            CustomContext.CustomTemplateHdle,
                             0, /* charValOffset */
-                            SizeCheck, /* charValueLen */
+                            SizeTemplate, /* charValueLen */
                             (uint8_t *)  pPayload);
-    /* USER CODE BEGIN CUSTOM_STM_CHECK*/
+    /* USER CODE BEGIN CUSTOM_STM_TEMPLATE*/
 
-    /* USER CODE END CUSTOM_STM_CHECK*/
+    /* USER CODE END CUSTOM_STM_TEMPLATE*/
       break;
 
     default:

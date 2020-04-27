@@ -128,16 +128,16 @@ void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotificatio
 /* USER CODE END CUSTOM_STM_TEMP_NOTIFY_DISABLED_EVT */
       break;
 
-    case CUSTOM_STM_CHECK_READ_EVT:
-/* USER CODE BEGIN CUSTOM_STM_CHECK_READ_EVT */
+    case CUSTOM_STM_TEMPLATE_READ_EVT:
+/* USER CODE BEGIN CUSTOM_STM_TEMPLATE_READ_EVT */
 
-/* USER CODE END CUSTOM_STM_CHECK_READ_EVT */
+/* USER CODE END CUSTOM_STM_TEMPLATE_READ_EVT */
       break;
 
-    case CUSTOM_STM_CHECK_WRITE_EVT:
-/* USER CODE BEGIN CUSTOM_STM_CHECK_WRITE_EVT */
+    case CUSTOM_STM_TEMPLATE_WRITE_EVT:
+/* USER CODE BEGIN CUSTOM_STM_TEMPLATE_WRITE_EVT */
 
-/* USER CODE END CUSTOM_STM_CHECK_WRITE_EVT */
+/* USER CODE END CUSTOM_STM_TEMPLATE_WRITE_EVT */
       break;
 
     default:
@@ -236,14 +236,16 @@ void Custom_Temp_Send_Notification(void) // Property Notification
 	  {
 			Custom_App_Context.ChangeStep = -TEMPERATURE_CHANGE_STEP;
 	  }
-	  else
+
+	  if(Custom_App_Context.Temperature.Value == 0)
+
 	  {
 			Custom_App_Context.ChangeStep = +TEMPERATURE_CHANGE_STEP;
 	  }
 
   if(Custom_App_Context.Temp_Notification_Status)
-  {
-	  Custom_STM_App_Update_Char(CUSTOM_STM_TEMP, (uint8_t *)NotifyCharData);
+  {     
+    Custom_STM_App_Update_Char(CUSTOM_STM_TEMP, (uint8_t *)NotifyCharData);
   }
   else
   {
