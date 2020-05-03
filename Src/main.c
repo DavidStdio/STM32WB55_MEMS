@@ -26,6 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stm32_seq.h"
+#include <ism330dlc_reg.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -35,6 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define SENSOR_BUS hi2c1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -66,6 +68,35 @@ static void MX_I2C1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+typedef union{
+  int16_t i16bit[3];
+  uint8_t u8bit[6];
+} axis3bit16_t;
+
+typedef union{
+  int16_t i16bit;
+  uint8_t u8bit[2];
+} axis1bit16_t;
+
+/* Private macro -------------------------------------------------------------*/
+#define BOOT_TIME             15 //ms
+#define TX_BUF_DIM          1000
+
+/* Private variables ---------------------------------------------------------*/
+static axis3bit16_t data_raw_acceleration;
+static axis3bit16_t data_raw_angular_rate;
+static axis1bit16_t data_raw_temperature;
+static float acceleration_mg[3];
+static float angular_rate_mdps[3];
+static float temperature_degC;
+static uint8_t whoamI, rst;
+
+static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
+                              uint16_t len);
+static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
+                             uint16_t len);
+
+static void platform_delay(uint32_t ms);
 
 /* USER CODE END 0 */
 
@@ -76,6 +107,7 @@ static void MX_I2C1_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	stmdev_ctx_t dev_ctx;
 
   /* USER CODE END 1 */
 
@@ -102,7 +134,21 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-	UTIL_SEQ_Init();
+  UTIL_SEQ_Init();
+
+  dev_ctx.write_reg = platform_write;
+  dev_ctx.read_reg = platform_read;
+  dev_ctx.handle = &SENSOR_BUS;
+
+  /* Wait sensor boot time */
+  platform_delay(BOOT_TIME);
+
+  /* Check device ID */
+  whoamI = 0;
+  ism330dlc_device_id_get(&dev_ctx, &whoamI);
+  if ( whoamI != ISM330DLC_ID )
+    while(1); /*manage here device not found */
+
   /* USER CODE END 2 */
 
   /* Init code for STM32_WPAN */
@@ -372,6 +418,54 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/*
+ * @brief  Write generic device register (platform dependent)
+ *
+ * @param  handle    customizable argument. In this examples is used in
+ *                   order to select the correct sensor bus handler.
+ * @param  reg       register to write
+ * @param  bufp      pointer to data to write in register reg
+ * @param  len       number of consecutive register to write
+ *
+ */
+static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
+                              uint16_t len)
+{
+  if (handle == &hi2c1)
+  {
+    HAL_I2C_Mem_Write(handle, ISM330DLC_I2C_ADD_L, reg,
+                      I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
+  }
+
+  return 0;
+}
+
+/*
+ * @brief  Read generic device register (platform dependent)
+ *
+ * @param  handle    customizable argument. In this examples is used in
+ *                   order to select the correct sensor bus handler.
+ * @param  reg       register to read
+ * @param  bufp      pointer to buffer that store the data read
+ * @param  len       number of consecutive register to read
+ *
+ */
+static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
+                             uint16_t len)
+{
+  if (handle == &hi2c1)
+  {
+    HAL_I2C_Mem_Read(handle, ISM330DLC_I2C_ADD_L, reg,
+                     I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
+  }
+
+  return 0;
+}
+
+static void platform_delay(uint32_t ms)
+{
+  HAL_Delay(ms);
+}
 
 /* USER CODE END 4 */
 
