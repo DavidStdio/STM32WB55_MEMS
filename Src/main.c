@@ -145,9 +145,11 @@ int main(void)
 
   /* Check device ID */
   whoamI = 0;
-  ism330dlc_device_id_get(&dev_ctx, &whoamI);
-  if ( whoamI != ISM330DLC_ID )
-    while(1); /*manage here device not found */
+
+  while( whoamI != ISM330DLC_ID )
+  {
+	  ism330dlc_device_id_get(&dev_ctx, &whoamI);
+  }
 
   /* USER CODE END 2 */
 
@@ -247,7 +249,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x00300F38;
+  hi2c1.Init.Timing = 0x00000E14;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -433,7 +435,7 @@ static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
 {
   if (handle == &hi2c1)
   {
-    HAL_I2C_Mem_Write(handle, ISM330DLC_I2C_ADD_L, reg,
+    HAL_I2C_Mem_Write(handle, ISM330DLC_I2C_ADD_H, reg,
                       I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
   }
 
@@ -455,7 +457,7 @@ static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
 {
   if (handle == &hi2c1)
   {
-    HAL_I2C_Mem_Read(handle, ISM330DLC_I2C_ADD_L, reg,
+    HAL_I2C_Mem_Read(handle, ISM330DLC_I2C_ADD_H, reg,
                      I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
   }
 
