@@ -239,7 +239,7 @@ uint8_t index_con_int, mutex;
  */
 uint8_t ad_data[14] = {
 
-    13, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 0x01, 0x83, 0x00 /*  */, 0x04 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 
+    13, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 0x01, 0x83, 0x00 /*  */, 0x44 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */,
 };
 /**
  * Advertising Data
