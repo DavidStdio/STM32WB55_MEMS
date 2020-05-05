@@ -29,6 +29,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <ism330dlc_reg.h>
+
 typedef struct
 {
 	uint16_t TimeStamp;
@@ -289,6 +291,14 @@ void Custom_Temp_Send_Notification(void) // Property Notification
  * @param  None
  * @retval None
  */
+typedef union{
+  int16_t i16bit[3];
+  uint8_t u8bit[6];
+} axis3bit16_t;
+
+static axis3bit16_t data_raw_angular_rate;
+extern stmdev_ctx_t dev_ctx;
+
 void MOTION_Send_Notification_Task(void)
 {
   uint8_t value[VALUE_LEN_MOTION];
@@ -297,9 +307,11 @@ void MOTION_Send_Notification_Task(void)
 
   ///* Read Motion values */
   //MOTION_Handle_Sensor();
+  memset(data_raw_angular_rate.u8bit, 0x00, 3*sizeof(int16_t));
+  ism330dlc_angular_rate_raw_get(&dev_ctx, data_raw_angular_rate.u8bit);
 
   ///* Timestamp */
-  //STORE_LE_16(value, (HAL_GetTick()>>3));
+  STORE_LE_16(value, (HAL_GetTick()>>3));
 
   //if(MOTION_Server_App_Context.hasAcc == 1)
   //{
@@ -310,13 +322,17 @@ void MOTION_Send_Notification_Task(void)
 
   //if(MOTION_Server_App_Context.hasGyro == 1)
   //{
-  //  MOTION_Server_App_Context.angular_velocity.x/=100;
-  //  MOTION_Server_App_Context.angular_velocity.y/=100;
-  //  MOTION_Server_App_Context.angular_velocity.z/=100;
+    //MOTION_Server_App_Context.angular_velocity.x/=100;
+    //MOTION_Server_App_Context.angular_velocity.y/=100;
+    //MOTION_Server_App_Context.angular_velocity.z/=100;
 
-  //  STORE_LE_16(value+8, MOTION_Server_App_Context.angular_velocity.x);
-  //  STORE_LE_16(value+10, MOTION_Server_App_Context.angular_velocity.y);
-  //  STORE_LE_16(value+12, MOTION_Server_App_Context.angular_velocity.z);
+//    STORE_LE_16(value+8, MOTION_Server_App_Context.angular_velocity.x);
+//    STORE_LE_16(value+10, MOTION_Server_App_Context.angular_velocity.y);
+//    STORE_LE_16(value+12, MOTION_Server_App_Context.angular_velocity.z);
+
+    STORE_LE_16(value+8, data_raw_angular_rate.i16bit[0]);
+    STORE_LE_16(value+10, data_raw_angular_rate.i16bit[1]);
+    STORE_LE_16(value+12, data_raw_angular_rate.i16bit[2]);
   //}
 
   //if(MOTION_Server_App_Context.hasMag == 1)
@@ -332,7 +348,7 @@ void MOTION_Send_Notification_Task(void)
 
   if(Custom_App_Context.Motion_Notification_Status)
   {
-    Custom_STM_App_Update_Char(MOTION_CHAR_UUID, (uint8_t *)NotifyCharData);
+    Custom_STM_App_Update_Char(MOTION_CHAR_UUID, (uint8_t *)value);
   }
   else
   {

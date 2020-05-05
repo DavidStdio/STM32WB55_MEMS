@@ -62,6 +62,9 @@ typedef struct
 /* Exported macros ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
 
+#define STORE_LE_16(buf, val)    ( ((buf)[0] =  (uint8_t) (val)    ) , \
+                                   ((buf)[1] =  (uint8_t) (val>>8) ) )
+
 /* USER CODE END EM */
 
 /* Exported functions ---------------------------------------------*/

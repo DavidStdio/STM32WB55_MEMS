@@ -76,7 +76,6 @@ typedef union{
 
 /* Private macro -------------------------------------------------------------*/
 #define BOOT_TIME             15 //ms
-#define TX_BUF_DIM          1000
 
 /* Private variables ---------------------------------------------------------*/
 static axis3bit16_t data_raw_acceleration;
@@ -86,11 +85,7 @@ static float acceleration_mg[3];
 static float angular_rate_mdps[3];
 static float temperature_degC;
 static uint8_t whoamI, rst;
-
-//static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
-//                              uint16_t len);
-//static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
-//                             uint16_t len);
+stmdev_ctx_t dev_ctx;
 
 static void platform_delay(uint32_t ms);
 
@@ -103,7 +98,6 @@ static void platform_delay(uint32_t ms);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	stmdev_ctx_t dev_ctx;
 
   /* USER CODE END 1 */
 
@@ -198,8 +192,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    ism330dlc_reg_t reg;
-    ism330dlc_status_reg_get(&dev_ctx, &reg.status_reg);
+    //ism330dlc_reg_t reg;
+    //ism330dlc_status_reg_get(&dev_ctx, &reg.status_reg);
 
     //if (reg.status_reg.xlda)
     //{
@@ -215,11 +209,11 @@ int main(void)
     //  //tx_com( tx_buffer, strlen( (char const*)tx_buffer ) );
     //}
 
-    if (reg.status_reg.gda)
+    //if (reg.status_reg.gda)
     {
       /* Read magnetic field data */
-      memset(data_raw_angular_rate.u8bit, 0x00, 3*sizeof(int16_t));
-      ism330dlc_angular_rate_raw_get(&dev_ctx, data_raw_angular_rate.u8bit);
+      //memset(data_raw_angular_rate.u8bit, 0x00, 3*sizeof(int16_t));
+      //ism330dlc_angular_rate_raw_get(&dev_ctx, data_raw_angular_rate.u8bit);
       //angular_rate_mdps[0] = ism330dlc_from_fs2000dps_to_mdps(data_raw_angular_rate.i16bit[0]);
       //angular_rate_mdps[1] = ism330dlc_from_fs2000dps_to_mdps(data_raw_angular_rate.i16bit[1]);
       //angular_rate_mdps[2] = ism330dlc_from_fs2000dps_to_mdps(data_raw_angular_rate.i16bit[2]);
