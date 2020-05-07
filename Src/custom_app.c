@@ -293,7 +293,6 @@ void Custom_Env_Send_Notification(void) // Property Notification
   return;
 }
 
-
 void Custom_Motion_Update_Char(void) //Property Read
 { 
   Custom_STM_App_Update_Char(CUSTOM_STM_MOTION, (uint8_t *)UpdateCharData);
@@ -325,7 +324,7 @@ void Custom_Motion_Send_Notification(void) // Property Notification
 
   if(Custom_App_Context.Motion_Notification_Status)
   {     
-    Custom_STM_App_Update_Char(CUSTOM_STM_MOTION, (uint8_t *)NotifyCharData);
+    Custom_STM_App_Update_Char(CUSTOM_STM_MOTION, (uint8_t *)value);
   }
   else
   {
