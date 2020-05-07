@@ -32,22 +32,23 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 typedef enum
 {
-  /* Environmental_Service_STM */
-  CUSTOM_STM_TEMP,
-  CUSTOM_STM_TEMPLATE,
+  /* Hardware_Service_STM */
+  CUSTOM_STM_ENV,
+  CUSTOM_STM_MOTION,
 } Custom_STM_Char_Opcode_t;
 
 typedef enum
 {
-  /* HW Service Chars related events */
-  CUSTOM_MOTION_NOTIFY_ENABLED_EVT,
-  CUSTOM_MOTION_NOTIFY_DISABLED_EVT,
-  CUSTOM_ENV_NOTIFY_ENABLED_EVT,
-  CUSTOM_ENV_NOTIFY_DISABLED_EVT,
-  CUSTOM_ENV_READ_EVT,
-  CUSTOM_ACC_EVENT_NOTIFY_ENABLED_EVT,
-  CUSTOM_ACC_EVENT_NOTIFY_DISABLED_EVT,
-  CUSTOM_ACC_EVENT_READ_EVT,
+  /* Environmental */
+  CUSTOM_STM_ENV_READ_EVT,
+  CUSTOM_STM_ENV_NOTIFY_ENABLED_EVT,
+  CUSTOM_STM_ENV_NOTIFY_DISABLED_EVT,
+  /* Motion */
+  CUSTOM_STM_MOTION_READ_EVT,
+  CUSTOM_STM_MOTION_NOTIFY_ENABLED_EVT,
+  CUSTOM_STM_MOTION_NOTIFY_DISABLED_EVT,
+
+  CUSTOM_STM_BOOT_REQUEST_EVT
 } Custom_STM_Opcode_evt_t;
 
 typedef struct
@@ -73,8 +74,7 @@ typedef struct
 /* Exported functions ------------------------------------------------------- */
 void SVCCTL_InitCustomSvc( void );
 void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotification);
-//tBleStatus Custom_STM_App_Update_Char(Custom_STM_Char_Opcode_t CharOpcode,  uint8_t *pPayload);
-tBleStatus Custom_STM_App_Update_Char(uint16_t UUID, uint8_t *pPayload);
+tBleStatus Custom_STM_App_Update_Char(Custom_STM_Char_Opcode_t CharOpcode,  uint8_t *pPayload);
 
 #ifdef __cplusplus
 }
