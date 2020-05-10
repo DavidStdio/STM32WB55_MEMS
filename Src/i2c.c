@@ -164,65 +164,6 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 
 /* USER CODE BEGIN 1 */
 
-void i2c_cmd_resp_release(uint32_t flag)
-{
-  //UTIL_SEQ_SetEvt( 1<< CFG_IDLEEVT_I2C_CMD_EVT_RSP_ID  );
-  return;
-}
-
-void i2c_cmd_resp_wait(uint32_t timeout)
-{
-  //UTIL_SEQ_WaitEvt( 1<< CFG_IDLEEVT_I2C_CMD_EVT_RSP_ID );
-  return;
-}
-
-void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
-{
-	i2c_cmd_resp_release(0);
-}
-
-void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
-{
-	i2c_cmd_resp_release(0);
-}
-
-int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
-                              uint16_t len)
-{
-  if (handle == &hi2c1)
-  {
-    HAL_I2C_Mem_Write_IT(handle, ISM330DLC_I2C_ADD_H, reg,
-                      I2C_MEMADD_SIZE_8BIT, bufp, len);
-
-    i2c_cmd_resp_wait(33000);
-  }
-
-  return 0;
-}
-
-/*
- * @brief  Read generic device register (platform dependent)
- *
- * @param  handle    customizable argument. In this examples is used in
- *                   order to select the correct sensor bus handler.
- * @param  reg       register to read
- * @param  bufp      pointer to buffer that store the data read
- * @param  len       number of consecutive register to read
- *
- */
-int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
-                             uint16_t len)
-{
-  if (handle == &hi2c1)
-  {
-    HAL_I2C_Mem_Read_IT(handle, ISM330DLC_I2C_ADD_H, reg,
-                     I2C_MEMADD_SIZE_8BIT, bufp, len);
-
-    i2c_cmd_resp_wait(33000);
-  }
-
-  return 0;
-}
 
 /* USER CODE END 1 */
 

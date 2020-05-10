@@ -43,7 +43,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define SENSOR_BUS hi2c1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -77,7 +76,6 @@ typedef union{
 } axis1bit16_t;
 
 /* Private macro -------------------------------------------------------------*/
-#define BOOT_TIME             15 //ms
 
 /* Private variables ---------------------------------------------------------*/
 static axis3bit16_t data_raw_acceleration;
@@ -86,8 +84,6 @@ static axis1bit16_t data_raw_temperature;
 static float acceleration_mg[3];
 static float angular_rate_mdps[3];
 static float temperature_degC;
-static uint8_t whoamI, rst;
-stmdev_ctx_t dev_ctx;
 
 static void platform_delay(uint32_t ms);
 
@@ -133,62 +129,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   //UTIL_SEQ_Init();
 
-  dev_ctx.write_reg = platform_write;
-  dev_ctx.read_reg = platform_read;
-  dev_ctx.handle = &SENSOR_BUS;
-
-  /* Wait sensor boot time */
-  platform_delay(BOOT_TIME);
-
-  /* Check device ID */
-  //whoamI = 0;
-
-  //while( whoamI != ISM330DLC_ID )
-  //{
-//	  ism330dlc_device_id_get(&dev_ctx, &whoamI);
-  //}
-
-  ///* Restore default configuration */
-  //ism330dlc_reset_set(&dev_ctx, PROPERTY_ENABLE);
-  //do {
-  //  ism330dlc_reset_get(&dev_ctx, &rst);
-  //} while (rst);
-
-  ///* Enable Block Data Update */
-  //ism330dlc_block_data_update_set(&dev_ctx, PROPERTY_ENABLE);
-
-  ///* Set Output Data Rate */
-  ///* davidbo
-  //ism330dlc_xl_data_rate_set(&dev_ctx, ISM330DLC_XL_ODR_12Hz5);
-  //*/
-  //ism330dlc_gy_data_rate_set(&dev_ctx, ISM330DLC_GY_ODR_12Hz5);
-
-  ///* Set full scale */
-  ///* davidbo
-  //ism330dlc_xl_full_scale_set(&dev_ctx, ISM330DLC_2g);
-  //*/
-  //ism330dlc_gy_full_scale_set(&dev_ctx, ISM330DLC_2000dps);
-
-  /* Configure filtering chain(No aux interface) */
-  /* Accelerometer - analog filter */
-  /* davidbo
-  ism330dlc_xl_filter_analog_set(&dev_ctx, ISM330DLC_XL_ANA_BW_400Hz);
-  */
-
-  /* Accelerometer - LPF1 path ( LPF2 not used )*/
-  //ism330dlc_xl_lp1_bandwidth_set(&dev_ctx, ISM330DLC_XL_LP1_ODR_DIV_4);
-
-  /* Accelerometer - LPF1 + LPF2 path */
-  /* davidbo
-  ism330dlc_xl_lp2_bandwidth_set(&dev_ctx, ISM330DLC_XL_LOW_NOISE_LP_ODR_DIV_100);
-  */
-
-  /* Accelerometer - High Pass / Slope path */
-  //ism330dlc_xl_reference_mode_set(&dev_ctx, PROPERTY_DISABLE);
-  //ism330dlc_xl_hp_bandwidth_set(&dev_ctx, ISM330DLC_XL_HP_ODR_DIV_100);
-
-  /* Gyroscope - filtering chain */
-  //ism330dlc_gy_band_pass_set(&dev_ctx, ISM330DLC_HP_260mHz_LP1_STRONG);
 
   /* USER CODE END 2 */
 
@@ -320,10 +260,6 @@ void SystemClock_Config(void)
  * @param  len       number of consecutive register to write
  *
  */
-static void platform_delay(uint32_t ms)
-{
-  HAL_Delay(ms);
-}
 
 /* USER CODE END 4 */
 

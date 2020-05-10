@@ -31,6 +31,7 @@
 #include "ble.h"
 #include "custom_app.h"
 #include "custom_stm.h"
+#include "i2c.h"
 #include <ism330dlc_reg.h>
 /* USER CODE END Includes */
 
@@ -55,7 +56,7 @@ typedef struct
 #define MAG_BYTES               (2)
 
 #define VALUE_LEN_MOTION        (2+3*ACC_BYTES+3*GYRO_BYTES+3*MAG_BYTES)
-
+#define SENSOR_BUS hi2c1
 /**
  * START of Section BLE_APP_CONTEXT
  */
@@ -65,12 +66,14 @@ PLACE_IN_SECTION("BLE_APP_CONTEXT") static Custom_App_Context_t Custom_App_Conte
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define BOOT_TIME             15 //ms
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-
+static uint8_t whoamI, rst;
+stmdev_ctx_t dev_ctx;
+static volatile uint32_t txrxinproccess = 0;
 /* USER CODE END Variables */
 /* Definitions for imuTask */
 osThreadId_t imuTaskHandle;
@@ -84,7 +87,7 @@ const osThreadAttr_t imuTask_attributes = {
 /* USER CODE BEGIN FunctionPrototypes */
 void Custom_Motion_Send_Notification(void);
 static void MOTENV_AccGyroMagUpdate_Timer_Callback(void);
-
+static void platform_delay(uint32_t ms);
 /* Functions Definition ------------------------------------------------------*/
 void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotification)
 {
@@ -172,6 +175,39 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartImuTask */
 void StartImuTask(void *argument)
 {
+  dev_ctx.write_reg = platform_write;
+  dev_ctx.read_reg = platform_read;
+  dev_ctx.handle = &SENSOR_BUS;
+
+  /* Wait sensor boot time */
+  platform_delay(BOOT_TIME);
+
+  /* Check device ID */
+  whoamI = 0;
+
+  while( whoamI != ISM330DLC_ID )
+  {
+	  ism330dlc_device_id_get(&dev_ctx, &whoamI);
+  }
+
+  /* Restore default configuration */
+  ism330dlc_reset_set(&dev_ctx, PROPERTY_ENABLE);
+  do {
+    ism330dlc_reset_get(&dev_ctx, &rst);
+  } while (rst);
+
+  /* Enable Block Data Update */
+  ism330dlc_block_data_update_set(&dev_ctx, PROPERTY_ENABLE);
+
+  /* Set Output Data Rate */
+  ism330dlc_gy_data_rate_set(&dev_ctx, ISM330DLC_GY_ODR_12Hz5);
+
+  /* Set full scale */
+  ism330dlc_gy_full_scale_set(&dev_ctx, ISM330DLC_2000dps);
+
+  /* Gyroscope - filtering chain */
+  ism330dlc_gy_band_pass_set(&dev_ctx, ISM330DLC_HP_260mHz_LP1_STRONG);
+
   /* USER CODE BEGIN StartImuTask */
   /* Infinite loop */
   for(;;)
@@ -221,6 +257,75 @@ void Custom_Motion_Send_Notification(void) // Property Notification
     APP_DBG_MSG("-- CUSTOM APPLICATION : CAN'T INFORM CLIENT -  NOTIFICATION DISABLED\n ");
   }
   return;
+}
+
+static void platform_delay(uint32_t ms)
+{
+  HAL_Delay(ms);
+}
+
+void i2c_cmd_resp_release(uint32_t flag)
+{
+  //UTIL_SEQ_SetEvt( 1<< CFG_IDLEEVT_I2C_CMD_EVT_RSP_ID  );
+  txrxinproccess = 0;
+  return;
+}
+
+void i2c_cmd_resp_wait(uint32_t timeout)
+{
+  //UTIL_SEQ_WaitEvt( 1<< CFG_IDLEEVT_I2C_CMD_EVT_RSP_ID );
+	txrxinproccess = 1;
+	while (txrxinproccess);
+
+	return;
+}
+
+void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	i2c_cmd_resp_release(0);
+}
+
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	i2c_cmd_resp_release(0);
+}
+
+int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
+                              uint16_t len)
+{
+  if (handle == &hi2c1)
+  {
+    HAL_I2C_Mem_Write_IT(handle, ISM330DLC_I2C_ADD_H, reg,
+                      I2C_MEMADD_SIZE_8BIT, bufp, len);
+
+    i2c_cmd_resp_wait(33000);
+  }
+
+  return 0;
+}
+
+/*
+ * @brief  Read generic device register (platform dependent)
+ *
+ * @param  handle    customizable argument. In this examples is used in
+ *                   order to select the correct sensor bus handler.
+ * @param  reg       register to read
+ * @param  bufp      pointer to buffer that store the data read
+ * @param  len       number of consecutive register to read
+ *
+ */
+int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
+                             uint16_t len)
+{
+  if (handle == &hi2c1)
+  {
+    HAL_I2C_Mem_Read_IT(handle, ISM330DLC_I2C_ADD_H, reg,
+                     I2C_MEMADD_SIZE_8BIT, bufp, len);
+
+    i2c_cmd_resp_wait(33000);
+  }
+
+  return 0;
 }
 /* USER CODE END Application */
 
