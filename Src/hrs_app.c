@@ -104,20 +104,25 @@ void HRS_Notification(HRS_App_Notification_evt_t *pNotification)
 #if (BLE_CFG_HRS_ENERGY_EXPENDED_INFO_FLAG != 0)
     case HRS_RESET_ENERGY_EXPENDED_EVT:
 /* USER CODE BEGIN HRS_RESET_ENERGY_EXPENDED_EVT */
-
+      HRSAPP_Context.MeasurementvalueChar.EnergyExpended = 0;
+      HRSAPP_Context.ResetEnergyExpended = 1;
 /* USER CODE END HRS_RESET_ENERGY_EXPENDED_EVT */
       break;
 #endif
       
     case HRS_NOTIFICATION_ENABLED:
 /* USER CODE BEGIN HRS_NOTIFICATION_ENABLED */
-
+      /**
+       * It could be the enable notification is received twice without the disable notification in between
+       */
+      HW_TS_Stop(HRSAPP_Context.TimerMeasurement_Id);
+      HW_TS_Start(HRSAPP_Context.TimerMeasurement_Id, HRSAPP_MEASUREMENT_INTERVAL);
 /* USER CODE END HRS_NOTIFICATION_ENABLED */
       break;
 
     case HRS_NOTIFICATION_DISABLED:
 /* USER CODE BEGIN HRS_NOTIFICATION_DISABLED */
-
+      HW_TS_Stop(HRSAPP_Context.TimerMeasurement_Id);
 /* USER CODE END HRS_NOTIFICATION_DISABLED */
       break;
       
@@ -145,6 +150,44 @@ void HRSAPP_Init(void)
 {
   HrsProcessId = osThreadNew(HrsProcess, NULL, &HrsProcess_attr);
 /* USER CODE BEGIN HRSAPP_Init */
+  /**
+   * Set Body Sensor Location
+   */
+  HRSAPP_Context.ResetEnergyExpended = 0;
+  HRSAPP_Context.BodySensorLocationChar = HRS_BODY_SENSOR_LOCATION_HAND;
+  HRS_UpdateChar(SENSOR_LOCATION_UUID, (uint8_t *)&HRSAPP_Context.BodySensorLocationChar);
+
+
+  /**
+   * Set Flags for measurement value
+   */
+
+  HRSAPP_Context.MeasurementvalueChar.Flags = ( HRS_HRM_VALUE_FORMAT_UINT16      | 
+                                                  HRS_HRM_SENSOR_CONTACTS_PRESENT   | 
+                                                  HRS_HRM_SENSOR_CONTACTS_SUPPORTED |
+                                                  HRS_HRM_ENERGY_EXPENDED_PRESENT  |
+                                                  HRS_HRM_RR_INTERVAL_PRESENT );
+
+#if (BLE_CFG_HRS_ENERGY_EXPENDED_INFO_FLAG != 0)
+  if(HRSAPP_Context.MeasurementvalueChar.Flags & HRS_HRM_ENERGY_EXPENDED_PRESENT)
+    HRSAPP_Context.MeasurementvalueChar.EnergyExpended = 10;
+#endif
+  
+#if (BLE_CFG_HRS_ENERGY_RR_INTERVAL_FLAG != 0)
+  if(HRSAPP_Context.MeasurementvalueChar.Flags & HRS_HRM_RR_INTERVAL_PRESENT)
+  {
+    uint8_t i;
+    
+    HRSAPP_Context.MeasurementvalueChar.NbreOfValidRRIntervalValues = BLE_CFG_HRS_ENERGY_RR_INTERVAL_FLAG;
+    for(i = 0; i < BLE_CFG_HRS_ENERGY_RR_INTERVAL_FLAG; i++)
+      HRSAPP_Context.MeasurementvalueChar.aRRIntervalValues[i] = 1024;
+  }
+#endif
+  
+  /**
+   * Create timer for Heart Rate Measurement
+   */
+  HW_TS_Create(CFG_TIM_PROC_ID_ISR, &(HRSAPP_Context.TimerMeasurement_Id), hw_ts_Repeated, HrMeas);
 
 /* USER CODE END HRSAPP_Init */
   return;
@@ -164,6 +207,20 @@ static void HrsProcess(void *argument)
 static void HRSAPP_Measurement(void)
 {
 /* USER CODE BEGIN HRSAPP_Measurement */
+  uint32_t measurement;
+
+  measurement = ((HRSAPP_Read_RTC_SSR_SS()) & 0x07) + 65;
+
+  HRSAPP_Context.MeasurementvalueChar.MeasurementValue = measurement;
+#if (BLE_CFG_HRS_ENERGY_EXPENDED_INFO_FLAG != 0)
+  if((HRSAPP_Context.MeasurementvalueChar.Flags & HRS_HRM_ENERGY_EXPENDED_PRESENT) &&
+     (HRSAPP_Context.ResetEnergyExpended == 0))
+    HRSAPP_Context.MeasurementvalueChar.EnergyExpended += 5;
+  else if(HRSAPP_Context.ResetEnergyExpended == 1)
+    HRSAPP_Context.ResetEnergyExpended = 0;
+#endif
+
+  HRS_UpdateChar(HEART_RATE_MEASURMENT_UUID, (uint8_t *)&HRSAPP_Context.MeasurementvalueChar);
 
 /* USER CODE END HRSAPP_Measurement */
   return;

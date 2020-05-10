@@ -107,80 +107,80 @@ static void MOTENV_AccGyroMagUpdate_Timer_Callback(void);
 /* USER CODE END PFP */
 
 /* Functions Definition ------------------------------------------------------*/
-void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotification)
-{
-  switch(pNotification->Custom_Evt_Opcode)
-  {
-  /* Hardware_Service_STM */
-    case CUSTOM_STM_MOTION_READ_EVT:
-      break;
+//void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotification)
+//{
+//  switch(pNotification->Custom_Evt_Opcode)
+//  {
+//  /* Hardware_Service_STM */
+//    case CUSTOM_STM_MOTION_READ_EVT:
+//      break;
+//
+//    case CUSTOM_STM_MOTION_NOTIFY_ENABLED_EVT:
+///* USER CODE BEGIN CUSTOM_STM_MOTION_NOTIFY_ENABLED_EVT */
+//    	 //Custom_App_Context.Motion_Notification_Status = 1;
+//		 //HW_TS_Start(Custom_App_Context.AccGyroMag_Update_Timer_Id, ACC_GYRO_MAG_UPDATE_PERIOD);
+///* USER CODE END CUSTOM_STM_MOTION_NOTIFY_ENABLED_EVT */
+//      break;
+//
+//    case CUSTOM_STM_MOTION_NOTIFY_DISABLED_EVT:
+///* USER CODE BEGIN CUSTOM_STM_MOTION_NOTIFY_DISABLED_EVT */
+//    	 //Custom_App_Context.Motion_Notification_Status  = 0;
+//    	 //HW_TS_Stop(Custom_App_Context.AccGyroMag_Update_Timer_Id);
+///* USER CODE END CUSTOM_STM_MOTION_NOTIFY_DISABLED_EVT */
+//      break;
+//
+//    default:
+//      break;
+//  }
+//
+//  return;
+//}
 
-    case CUSTOM_STM_MOTION_NOTIFY_ENABLED_EVT:
-/* USER CODE BEGIN CUSTOM_STM_MOTION_NOTIFY_ENABLED_EVT */
-    	 //Custom_App_Context.Motion_Notification_Status = 1;
-		 //HW_TS_Start(Custom_App_Context.AccGyroMag_Update_Timer_Id, ACC_GYRO_MAG_UPDATE_PERIOD);
-/* USER CODE END CUSTOM_STM_MOTION_NOTIFY_ENABLED_EVT */
-      break;
+//void Custom_APP_Notification(Custom_App_ConnHandle_Not_evt_t *pNotification)
+//{
+///* USER CODE BEGIN CUSTOM_APP_Notification_1 */
+//
+///* USER CODE END CUSTOM_APP_Notification_1 */
+//
+//  switch(pNotification->Custom_Evt_Opcode)
+//  {
+//  case CUSTOM_CONN_HANDLE_EVT :
+//    break;
+//
+//    case CUSTOM_DISCON_HANDLE_EVT :
+//    break;
+//
+//    default:
+//      break;
+//  }
+//
+//  return;
+//}
 
-    case CUSTOM_STM_MOTION_NOTIFY_DISABLED_EVT:
-/* USER CODE BEGIN CUSTOM_STM_MOTION_NOTIFY_DISABLED_EVT */
-    	 //Custom_App_Context.Motion_Notification_Status  = 0;
-    	 //HW_TS_Stop(Custom_App_Context.AccGyroMag_Update_Timer_Id);
-/* USER CODE END CUSTOM_STM_MOTION_NOTIFY_DISABLED_EVT */
-      break;
-
-    default:
-      break;
-  }
-
-  return;
-}
-
-void Custom_APP_Notification(Custom_App_ConnHandle_Not_evt_t *pNotification)
-{
-/* USER CODE BEGIN CUSTOM_APP_Notification_1 */
-
-/* USER CODE END CUSTOM_APP_Notification_1 */
-
-  switch(pNotification->Custom_Evt_Opcode)
-  {
-  case CUSTOM_CONN_HANDLE_EVT :
-    break;
-
-    case CUSTOM_DISCON_HANDLE_EVT :
-    break;
-    
-    default:
-      break;
-  }
-
-  return;
-}
-
-void Custom_APP_Init(void)
-{
-/* USER CODE BEGIN CUSTOM_APP_Init */
-   	Custom_App_Context.Motion_Notification_Status = 0;
-	//Custom_App_Context.Temperature.TimeStamp = 0;
-	//Custom_App_Context.Temperature.Value = 0;
-	//Custom_App_Context.ChangeStep = TEMPERATURE_CHANGE_STEP;
-//	UTIL_SEQ_RegTask( 1<<CFG_TASK_NOTIFY_TEMPERATURE, UTIL_SEQ_RFU, Custom_Env_Send_Notification);
-
-	//HW_TS_Create(CFG_TIM_PROC_ID_ISR,
-	//		&(Custom_App_Context.Update_timer_Id),
-	//		hw_ts_Repeated,
-	//		Custom_TemperatureChange_Timer_Callback);
-
-//	UTIL_SEQ_RegTask( 1<<CFG_TASK_NOTIFY_ACC_GYRO_MAG_ID, UTIL_SEQ_RFU, Custom_Motion_Send_Notification);
-	/* Create timer to get the AccGyroMag params and update charecteristic */
-	//HW_TS_Create(CFG_TIM_PROC_ID_ISR,
-    //    &(Custom_App_Context.AccGyroMag_Update_Timer_Id),
-    //    hw_ts_Repeated,
-    //    MOTENV_AccGyroMagUpdate_Timer_Callback);
-
-/* USER CODE END CUSTOM_APP_Init */
-  return;
-}
+//void Custom_APP_Init(void)
+//{
+///* USER CODE BEGIN CUSTOM_APP_Init */
+//   	Custom_App_Context.Motion_Notification_Status = 0;
+//	//Custom_App_Context.Temperature.TimeStamp = 0;
+//	//Custom_App_Context.Temperature.Value = 0;
+//	//Custom_App_Context.ChangeStep = TEMPERATURE_CHANGE_STEP;
+////	UTIL_SEQ_RegTask( 1<<CFG_TASK_NOTIFY_TEMPERATURE, UTIL_SEQ_RFU, Custom_Env_Send_Notification);
+//
+//	//HW_TS_Create(CFG_TIM_PROC_ID_ISR,
+//	//		&(Custom_App_Context.Update_timer_Id),
+//	//		hw_ts_Repeated,
+//	//		Custom_TemperatureChange_Timer_Callback);
+//
+////	UTIL_SEQ_RegTask( 1<<CFG_TASK_NOTIFY_ACC_GYRO_MAG_ID, UTIL_SEQ_RFU, Custom_Motion_Send_Notification);
+//	/* Create timer to get the AccGyroMag params and update charecteristic */
+//	//HW_TS_Create(CFG_TIM_PROC_ID_ISR,
+//    //    &(Custom_App_Context.AccGyroMag_Update_Timer_Id),
+//    //    hw_ts_Repeated,
+//    //    MOTENV_AccGyroMagUpdate_Timer_Callback);
+//
+///* USER CODE END CUSTOM_APP_Init */
+//  return;
+//}
 
 /* USER CODE BEGIN FD */
 /* USER CODE END FD */
@@ -192,11 +192,11 @@ void Custom_APP_Init(void)
  *************************************************************/
 
   /* Hardware_Service_STM */
-void Custom_Env_Update_Char(void) //Property Read
-{ 
-//  Custom_STM_App_Update_Char(CUSTOM_STM_ENV, (uint8_t *)UpdateCharData);
-  return;
-}
+//void Custom_Env_Update_Char(void) //Property Read
+//{
+////  Custom_STM_App_Update_Char(CUSTOM_STM_ENV, (uint8_t *)UpdateCharData);
+//  return;
+//}
 
 void Custom_Env_Send_Notification(void) // Property Notification
 {
