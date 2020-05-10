@@ -29,7 +29,6 @@
 #include "app_common.h"
 #include "dbg_trace.h"
 #include "ble.h"
-#include "custom_app.h"
 #include "custom_stm.h"
 #include "i2c.h"
 #include <ism330dlc_reg.h>
@@ -67,6 +66,8 @@ PLACE_IN_SECTION("BLE_APP_CONTEXT") static Custom_App_Context_t Custom_App_Conte
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 #define BOOT_TIME             15 //ms
+#define STORE_LE_16(buf, val)    ( ((buf)[0] =  (uint8_t) (val)    ) , \
+                                   ((buf)[1] =  (uint8_t) (val>>8) ) )
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -81,6 +82,11 @@ const osThreadAttr_t imuTask_attributes = {
   .name = "imuTask",
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 256 * 4
+};
+/* Definitions for ImuI2Csem */
+osSemaphoreId_t ImuI2CsemHandle;
+const osSemaphoreAttr_t ImuI2Csem_attributes = {
+  .name = "ImuI2Csem"
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -137,6 +143,10 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
+
+  /* Create the semaphores(s) */
+  /* creation of ImuI2Csem */
+  ImuI2CsemHandle = osSemaphoreNew(1, 0, &ImuI2Csem_attributes);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -267,16 +277,17 @@ static void platform_delay(uint32_t ms)
 void i2c_cmd_resp_release(uint32_t flag)
 {
   //UTIL_SEQ_SetEvt( 1<< CFG_IDLEEVT_I2C_CMD_EVT_RSP_ID  );
-  txrxinproccess = 0;
-  return;
+  //txrxinproccess = 0;
+	osSemaphoreRelease(ImuI2CsemHandle);
+	return;
 }
 
 void i2c_cmd_resp_wait(uint32_t timeout)
 {
   //UTIL_SEQ_WaitEvt( 1<< CFG_IDLEEVT_I2C_CMD_EVT_RSP_ID );
-	txrxinproccess = 1;
-	while (txrxinproccess);
-
+	//txrxinproccess = 1;
+	//while (txrxinproccess);
+	osSemaphoreAcquire( ImuI2CsemHandle, osWaitForever );
 	return;
 }
 
@@ -304,16 +315,6 @@ int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
   return 0;
 }
 
-/*
- * @brief  Read generic device register (platform dependent)
- *
- * @param  handle    customizable argument. In this examples is used in
- *                   order to select the correct sensor bus handler.
- * @param  reg       register to read
- * @param  bufp      pointer to buffer that store the data read
- * @param  len       number of consecutive register to read
- *
- */
 int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
                              uint16_t len)
 {
