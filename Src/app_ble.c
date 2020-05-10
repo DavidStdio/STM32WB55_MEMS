@@ -463,9 +463,6 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
 
       /* restart advertising */
       Adv_Request(APP_BLE_FAST_ADV);
- /*
-* SPECIFIC to P2P Server APP
-*/
       /* USER CODE BEGIN EVT_DISCONN_COMPLETE */
 
       /* USER CODE END EVT_DISCONN_COMPLETE */
@@ -545,9 +542,6 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
             BleApplicationContext.Device_Connection_Status = APP_BLE_CONNECTED_SERVER;
           }
           BleApplicationContext.BleApplicationContext_legacy.connectionHandle = connection_complete_event->Connection_Handle;
-/*
-* SPECIFIC to P2P Server APP
-*/
           /* USER CODE BEGIN HCI_EVT_LE_CONN_COMPLETE */
 
           /* USER CODE END HCI_EVT_LE_CONN_COMPLETE */
@@ -566,7 +560,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
     case EVT_VENDOR:
       blue_evt = (evt_blue_aci*) event_pckt->data;
       /* USER CODE BEGIN EVT_VENDOR */
-      //blue_ev_code = blue_evt->ecode;
+
       /* USER CODE END EVT_VENDOR */
       switch (blue_evt->ecode)
       {
