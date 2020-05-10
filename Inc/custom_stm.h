@@ -33,16 +33,12 @@ extern "C" {
 typedef enum
 {
   /* Hardware_Service_STM */
-  CUSTOM_STM_ENV,
   CUSTOM_STM_MOTION,
 } Custom_STM_Char_Opcode_t;
 
 typedef enum
 {
   /* Environmental */
-  CUSTOM_STM_ENV_READ_EVT,
-  CUSTOM_STM_ENV_NOTIFY_ENABLED_EVT,
-  CUSTOM_STM_ENV_NOTIFY_DISABLED_EVT,
   /* Motion */
   CUSTOM_STM_MOTION_READ_EVT,
   CUSTOM_STM_MOTION_NOTIFY_ENABLED_EVT,

@@ -29,10 +29,12 @@
 #include "tl.h"
 #include "app_ble.h"
 
-#include "stm32_seq.h"
+#include "cmsis_os.h"
 #include "shci.h"
 #include "stm32_lpm.h"
 #include "otp.h"
+#include "dis_app.h"
+#include "hrs_app.h"
 #include "p2p_server_app.h"
 #include "custom_app.h"
 
@@ -169,13 +171,13 @@ typedef struct
    */
    uint8_t Advertising_mgr_timer_Id;
 
-  uint8_t SwitchOffGPIO_timer_Id;
 }BleApplicationContext_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
 
 /* Private defines -----------------------------------------------------------*/
+#define APPBLE_GAP_DEVICE_NAME_LENGTH 7
 #define FAST_ADV_TIMEOUT               (30*1000*1000/CFG_TS_TICK_VAL) /**< 30s */
 #define INITIAL_ADV_TIMEOUT            (60*1000*1000/CFG_TS_TICK_VAL) /**< 60s */
 
@@ -239,17 +241,17 @@ uint8_t index_con_int, mutex;
  */
 uint8_t ad_data[14] = {
 
-    13, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 0x01, 0x83, 0x00 /*  */, 0x44 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 
+    13, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 0x01, 0x83, 0x00 /*  */, 0x40 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */, 0x00 /*  */,
 };
 /**
  * Advertising Data
  */
 #if (P2P_SERVER1 != 0)
-static const char local_name[] = { AD_TYPE_COMPLETE_LOCAL_NAME ,'P','2','P','B','A','T','A'};
-uint8_t manuf_data[14] = {
-    sizeof(manuf_data)-1, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 
+static const char local_name[] = { AD_TYPE_COMPLETE_LOCAL_NAME ,'W','B','M','E','M','S'};
+uint8_t  manuf_data[14] = {
+    sizeof(manuf_data)-1, AD_TYPE_MANUFACTURER_SPECIFIC_DATA,
     0x01/*SKD version */,
-    CFG_DEV_ID_P2P_SERVER1 /* STM32WB - P2P Server 1*/,
+    0x00 /* Generic*/,
     0x00 /* GROUP A Feature  */, 
     0x00 /* GROUP A Feature */,
     0x00 /* GROUP B Feature */,
@@ -260,104 +262,7 @@ uint8_t manuf_data[14] = {
     0x00,
     0x00,
     0x00, /* BLE MAC stop */
-};
-#endif
-/**
- * Advertising Data
- */
-#if (P2P_SERVER2 != 0)
-static const char local_name[] = { AD_TYPE_COMPLETE_LOCAL_NAME, 'P', '2', 'P', 'S', 'R', 'V', '2'};
-uint8_t manuf_data[14] = {
-    sizeof(manuf_data)-1, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 
-    0x01/*SKD version */,
-    CFG_DEV_ID_P2P_SERVER2 /* STM32WB - P2P Server 2*/,
-    0x00 /* GROUP A Feature  */, 
-    0x00 /* GROUP A Feature */,
-    0x00 /* GROUP B Feature */,
-    0x00 /* GROUP B Feature */,
-    0x00, /* BLE MAC start -MSB */
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00, /* BLE MAC stop */
-};
 
-#endif
-
-#if (P2P_SERVER3 != 0)
-static const char local_name[] = { AD_TYPE_COMPLETE_LOCAL_NAME, 'P', '2', 'P', 'S', 'R', 'V', '3'};
-uint8_t manuf_data[14] = {
-    sizeof(manuf_data)-1, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 
-    0x01/*SKD version */,
-    CFG_DEV_ID_P2P_SERVER3 /* STM32WB - P2P Server 3*/,
-    0x00 /* GROUP A Feature  */, 
-    0x00 /* GROUP A Feature */,
-    0x00 /* GROUP B Feature */,
-    0x00 /* GROUP B Feature */,
-    0x00, /* BLE MAC start -MSB */
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00, /* BLE MAC stop */
-};
-#endif
-
-#if (P2P_SERVER4 != 0)
-static const char local_name[] = { AD_TYPE_COMPLETE_LOCAL_NAME, 'P', '2', 'P', 'S', 'R', 'V', '4'};
-uint8_t manuf_data[14] = {
-    sizeof(manuf_data)-1, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 
-    0x01/*SKD version */,
-    CFG_DEV_ID_P2P_SERVER4 /* STM32WB - P2P Server 4*/,
-    0x00 /* GROUP A Feature  */, 
-    0x00 /* GROUP A Feature */,
-    0x00 /* GROUP B Feature */,
-    0x00 /* GROUP B Feature */,
-    0x00, /* BLE MAC start -MSB */
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00, /* BLE MAC stop */
-};
-#endif
-
-#if (P2P_SERVER5 != 0)
-static const char local_name[] = { AD_TYPE_COMPLETE_LOCAL_NAME, 'P', '2', 'P', 'S', 'R', 'V', '5'};
-uint8_t manuf_data[14] = {
-    sizeof(manuf_data)-1, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 
-    0x01/*SKD version */,
-    CFG_DEV_ID_P2P_SERVER5 /* STM32WB - P2P Server 5*/,
-    0x00 /* GROUP A Feature  */, 
-    0x00 /* GROUP A Feature */,
-    0x00 /* GROUP B Feature */,
-    0x00 /* GROUP B Feature */,
-    0x00, /* BLE MAC start -MSB */
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00, /* BLE MAC stop */
-};
-#endif
-
-#if (P2P_SERVER6 != 0)
-static const char local_name[] = { AD_TYPE_COMPLETE_LOCAL_NAME, 'P', '2', 'P', 'S', 'R', 'V', '6'};
-uint8_t manuf_data[14] = {
-    sizeof(manuf_data)-1, AD_TYPE_MANUFACTURER_SPECIFIC_DATA, 
-    0x01/*SKD version */,
-    CFG_DEV_ID_P2P_SERVER6 /* STM32WB - P2P Server 1*/,
-    0x00 /* GROUP A Feature  */, 
-    0x00 /* GROUP A Feature */,
-    0x00 /* GROUP B Feature */,
-    0x00 /* GROUP B Feature */,
-    0x00, /* BLE MAC start -MSB */
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00, /* BLE MAC stop */
 };
 #endif
 
@@ -365,20 +270,44 @@ uint8_t manuf_data[14] = {
 
 /* USER CODE END PV */
 
+/* Global variables ----------------------------------------------------------*/
+osMutexId_t MtxHciId;
+osSemaphoreId_t SemHciId;
+osThreadId_t AdvUpdateProcessId;
+osThreadId_t HciUserEvtProcessId;
+
+const osThreadAttr_t AdvUpdateProcess_attr = {
+    .name = CFG_ADV_UPDATE_PROCESS_NAME,
+    .attr_bits = CFG_ADV_UPDATE_PROCESS_ATTR_BITS,
+    .cb_mem = CFG_ADV_UPDATE_PROCESS_CB_MEM,
+    .cb_size = CFG_ADV_UPDATE_PROCESS_CB_SIZE,
+    .stack_mem = CFG_ADV_UPDATE_PROCESS_STACK_MEM,
+    .priority = CFG_ADV_UPDATE_PROCESS_PRIORITY,
+    .stack_size = CFG_ADV_UPDATE_PROCESS_STACK_SIZE
+};
+
+const osThreadAttr_t HciUserEvtProcess_attr = {
+    .name = CFG_HCI_USER_EVT_PROCESS_NAME,
+    .attr_bits = CFG_HCI_USER_EVT_PROCESS_ATTR_BITS,
+    .cb_mem = CFG_HCI_USER_EVT_PROCESS_CB_MEM,
+    .cb_size = CFG_HCI_USER_EVT_PROCESS_CB_SIZE,
+    .stack_mem = CFG_HCI_USER_EVT_PROCESS_STACK_MEM,
+    .priority = CFG_HCI_USER_EVT_PROCESS_PRIORITY,
+    .stack_size = CFG_HCI_USER_EVT_PROCESS_STACK_SIZE
+};
+
 /* Private function prototypes -----------------------------------------------*/
+static void HciUserEvtProcess(void *argument);
 static void BLE_UserEvtRx( void * pPayload );
 static void BLE_StatusNot( HCI_TL_CmdStatus_t status );
 static void Ble_Tl_Init( void );
 static void Ble_Hci_Gap_Gatt_Init(void);
 static const uint8_t* BleGetBdAddress( void );
 static void Adv_Request( APP_BLE_ConnStatus_t New_Status );
-static void Adv_Cancel( void );
-static void Adv_Cancel_Req( void );
-static void Switch_OFF_GPIO( void );
-#if(L2CAP_REQUEST_NEW_CONN_PARAM != 0)  
-static void BLE_SVC_L2CAP_Conn_Update(uint16_t Connection_Handle);
-static void Connection_Interval_Update_Req( void );
-#endif
+static void Add_Advertisment_Service_UUID( uint16_t servUUID );
+static void Adv_Mgr( void );
+static void AdvUpdateProcess(void *argument);
+static void Adv_Update( void );
 
 /* USER CODE BEGIN PFP */
 
@@ -426,7 +355,7 @@ void APP_BLE_Init( void )
   /**
    * Register the hci transport layer to handle BLE User Asynchronous Events
    */
-  UTIL_SEQ_RegTask( 1<<CFG_TASK_HCI_ASYNCH_EVT_ID, UTIL_SEQ_RFU, hci_user_evt_proc);
+  HciUserEvtProcessId = osThreadNew(HciUserEvtProcess, NULL, &HciUserEvtProcess_attr);
 
   /**
    * Starts the BLE Stack on CPU2
@@ -451,10 +380,7 @@ void APP_BLE_Init( void )
   /**
    * From here, all initialization are BLE application specific
    */
-  UTIL_SEQ_RegTask( 1<<CFG_TASK_ADV_CANCEL_ID, UTIL_SEQ_RFU, Adv_Cancel);
-#if (L2CAP_REQUEST_NEW_CONN_PARAM != 0 )
-  UTIL_SEQ_RegTask( 1<<CFG_TASK_CONN_UPDATE_REG_ID, UTIL_SEQ_RFU, Connection_Interval_Update_Req);
-#endif
+  AdvUpdateProcessId = osThreadNew(AdvUpdateProcess, NULL, &AdvUpdateProcess_attr);
 
   /**
    * Initialization of ADV - Ad Manufacturer Element - Support OTA Bit Mask
@@ -462,66 +388,38 @@ void APP_BLE_Init( void )
 #if(BLE_CFG_OTA_REBOOT_CHAR != 0)
   manuf_data[sizeof(manuf_data)-8] = CFG_FEATURE_OTA_REBOOT;
 #endif
-#if(RADIO_ACTIVITY_EVENT != 0)  
-  aci_hal_set_radio_activity_mask(0x0006);
-#endif
-  
-#if (L2CAP_REQUEST_NEW_CONN_PARAM != 0 )
-  index_con_int = 0; 
-  mutex = 1; 
-#endif
   /**
    * Initialize P2P Server Application
    */
-  P2PS_APP_Init();
-
-  UTIL_SEQ_RegTask( 1<<CFG_TASK_ADV_CANCEL_ID, UTIL_SEQ_RFU, Adv_Cancel);
-  /**
-   * Initialization of ADV - Ad Manufacturer Element - Support OTA Bit Mask
+  P2PS_APP_Init();  
+/**
+   * Initialize DIS Application
    */
-#if(RADIO_ACTIVITY_EVENT != 0)  
-  aci_hal_set_radio_activity_mask(0x0006);
-#endif  
-  
-#if (L2CAP_REQUEST_NEW_CONN_PARAM != 0 )
-  index_con_int = 0; 
-  mutex = 1; 
-#endif
-  /**
-   * Initialize P2P Server Application
-   */
-  Custom_APP_Init();
+  //DISAPP_Init();
 
   /**
-   * Create timer to handle the Advertising Stop
+   * Initialize HRS Application
    */
-  HW_TS_Create(CFG_TIM_PROC_ID_ISR, &(BleApplicationContext.Advertising_mgr_timer_Id), hw_ts_SingleShot, Adv_Cancel_Req);
-  /**
-   * Create timer to handle the Led Switch OFF
-   */
-  HW_TS_Create(CFG_TIM_PROC_ID_ISR, &(BleApplicationContext.SwitchOffGPIO_timer_Id), hw_ts_SingleShot, Switch_OFF_GPIO);
+  HRSAPP_Init();
 
   /**
-   * Create timer to handle the Advertising Stop
+   * Create timer to handle the connection state machine
    */
-  HW_TS_Create(CFG_TIM_PROC_ID_ISR, &(BleApplicationContext.Advertising_mgr_timer_Id), hw_ts_SingleShot, Adv_Cancel_Req);
-  /**
-   * Create timer to handle the Led Switch OFF
-   */
-  HW_TS_Create(CFG_TIM_PROC_ID_ISR, &(BleApplicationContext.SwitchOffGPIO_timer_Id), hw_ts_SingleShot, Switch_OFF_GPIO);
+
+  HW_TS_Create(CFG_TIM_PROC_ID_ISR, &(BleApplicationContext.Advertising_mgr_timer_Id), hw_ts_SingleShot, Adv_Mgr);
 
   /**
    * Make device discoverable
    */
-  BleApplicationContext.BleApplicationContext_legacy.advtServUUID[0] = NULL;
-  BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen = 0;
-
+  BleApplicationContext.BleApplicationContext_legacy.advtServUUID[0] = AD_TYPE_16_BIT_SERV_UUID;
+  BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen = 1;
+  Add_Advertisment_Service_UUID(HEART_RATE_SERVICE_UUID);
   /* Initialize intervals for reconnexion without intervals update */
   AdvIntervalMin = CFG_FAST_CONN_ADV_INTERVAL_MIN;
   AdvIntervalMax = CFG_FAST_CONN_ADV_INTERVAL_MAX;
 
   /**
-   * Start to Advertise to be connected by P2P Client
+  * Start to Advertise to be connected by Collector
    */
    Adv_Request(APP_BLE_FAST_ADV);
 
@@ -681,17 +579,6 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
       /* USER CODE BEGIN ecode */
 
       /* USER CODE END ecode */
-/*
-* SPECIFIC to P2P Server APP
-*/
-        case EVT_BLUE_L2CAP_CONNECTION_UPDATE_RESP:
-#if (L2CAP_REQUEST_NEW_CONN_PARAM != 0 )
-          mutex = 1;
-#endif
-      /* USER CODE BEGIN EVT_BLUE_L2CAP_CONNECTION_UPDATE_RESP */
-
-      /* USER CODE END EVT_BLUE_L2CAP_CONNECTION_UPDATE_RESP */
-      break;
         case EVT_BLUE_GAP_PROCEDURE_COMPLETE:
         APP_DBG_MSG("\r\n\r** EVT_BLUE_GAP_PROCEDURE_COMPLETE \n");
         /* USER CODE BEGIN EVT_BLUE_GAP_PROCEDURE_COMPLETE */
@@ -727,6 +614,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
         
         case EVT_BLUE_GAP_PAIRING_CMPLT:
             pairing_complete = (aci_gap_pairing_complete_event_rp0*)blue_evt->data;
+
             APP_DBG_MSG("BLE_CTRL_App_Notification: EVT_BLUE_GAP_PAIRING_CMPLT, pairing_complete->Status = %d\n",pairing_complete->Status);
         break;
         /* PAIRING */
@@ -760,6 +648,9 @@ APP_BLE_ConnStatus_t APP_BLE_Get_Server_Connection_Status(void)
 static void Ble_Tl_Init( void )
 {
   HCI_TL_HciInitConf_t Hci_Tl_Init_Conf;
+
+  MtxHciId = osMutexNew( NULL );
+  SemHciId = osSemaphoreNew( 1, 0, NULL ); /*< Create the semaphore and make it busy at initialization */
 
   Hci_Tl_Init_Conf.p_cmdbuffer = (uint8_t*)&BleCmdBuffer;
   Hci_Tl_Init_Conf.StatusNotCallBack = BLE_StatusNot;
@@ -799,6 +690,29 @@ static void Ble_Hci_Gap_Gatt_Init(void){
   manuf_data[ sizeof(manuf_data)-3] = bd_addr[2];
   manuf_data[ sizeof(manuf_data)-2] = bd_addr[1];
   manuf_data[ sizeof(manuf_data)-1] = bd_addr[0];
+
+  /**
+   * Write Identity root key used to derive LTK and CSRK 
+   */
+    aci_hal_write_config_data(CONFIG_DATA_IR_OFFSET,
+    CONFIG_DATA_IR_LEN,
+                            (uint8_t*) BLE_CFG_IR_VALUE);
+    
+   /**
+   * Write Encryption root key used to derive LTK and CSRK
+   */
+    aci_hal_write_config_data(CONFIG_DATA_ER_OFFSET,
+    CONFIG_DATA_ER_LEN,
+                            (uint8_t*) BLE_CFG_ER_VALUE);
+
+   /**
+   * Write random bd_address
+   */
+   /* random_bd_address = R_bd_address;
+    aci_hal_write_config_data(CONFIG_DATA_RANDOM_ADDRESS_WR,
+    CONFIG_DATA_RANDOM_ADDRESS_LEN,
+                            (uint8_t*) random_bd_address);
+  */
 
   /**
    * Static random Address
@@ -845,9 +759,9 @@ static void Ble_Hci_Gap_Gatt_Init(void){
 
   if (role > 0)
   {
-    const char *name = CFG_GAP_DEVICE_NAME;
+    const char *name = "WBMEMS";
     aci_gap_init(role, 0,
-                CFG_GAP_DEVICE_NAME_LENGTH,
+                 APPBLE_GAP_DEVICE_NAME_LENGTH,
                  &gap_service_handle, &gap_dev_name_char_handle, &gap_appearance_char_handle);
 
     if (aci_gatt_update_char_value(gap_service_handle, gap_dev_name_char_handle, 0, strlen(name), (uint8_t *) name))
@@ -1043,103 +957,61 @@ const uint8_t* BleGetBdAddress( void )
 
 /*************************************************************
  *
- *SPECIFIC FUNCTIONS FOR CUSTOM & P2P SERVER
+ *SPECIFIC FUNCTIONS
  *
  *************************************************************/
-static void Adv_Cancel( void )
+static void Add_Advertisment_Service_UUID( uint16_t servUUID )
 {
-/* USER CODE BEGIN Adv_Cancel_1 */
+  BleApplicationContext.BleApplicationContext_legacy.advtServUUID[BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen] =
+      (uint8_t) (servUUID & 0xFF);
+  BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen++;
+  BleApplicationContext.BleApplicationContext_legacy.advtServUUID[BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen] =
+      (uint8_t) (servUUID >> 8) & 0xFF;
+  BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen++;
 
-/* USER CODE END Adv_Cancel_1 */
+  return;
+}
 
-  if (BleApplicationContext.Device_Connection_Status != APP_BLE_CONNECTED_SERVER)
+static void Adv_Mgr( void )
+{
+  /**
+   * The code shall be executed in the background as an aci command may be sent
+   * The background is the only place where the application can make sure a new aci command
+   * is not sent if there is a pending one
+   */
+  osThreadFlagsSet( AdvUpdateProcessId, 1 );
 
+  return;
+}
+
+static void AdvUpdateProcess(void *argument)
+{
+  UNUSED(argument);
+
+  for(;;)
   {
-
-    tBleStatus result = 0x00;
-
-    result = aci_gap_set_non_discoverable();
-
-    BleApplicationContext.Device_Connection_Status = APP_BLE_IDLE;
-    if (result == BLE_STATUS_SUCCESS)
-    {
-      APP_DBG_MSG("  \r\n\r");APP_DBG_MSG("** STOP ADVERTISING **  \r\n\r");
-    }
-    else
-    {
-      APP_DBG_MSG("** STOP ADVERTISING **  Failed \r\n\r");
-    }
-
+    osThreadFlagsWait( 1, osFlagsWaitAny, osWaitForever);
+    Adv_Update( );
   }
+}
 
-/* USER CODE BEGIN Adv_Cancel_2 */
+static void Adv_Update( void )
+{
+  Adv_Request(APP_BLE_LP_ADV);
 
-/* USER CODE END Adv_Cancel_2 */
   return;
 }
 
-static void Adv_Cancel_Req( void )
+static void HciUserEvtProcess(void *argument)
 {
-/* USER CODE BEGIN Adv_Cancel_Req_1 */
+  UNUSED(argument);
 
-/* USER CODE END Adv_Cancel_Req_1 */
-  UTIL_SEQ_SetTask(1 << CFG_TASK_ADV_CANCEL_ID, CFG_SCH_PRIO_0);
-/* USER CODE BEGIN Adv_Cancel_Req_2 */
-
-/* USER CODE END Adv_Cancel_Req_2 */
-  return;
-}
-
-static void Switch_OFF_GPIO(){
-/* USER CODE BEGIN Switch_OFF_GPIO */
-
-/* USER CODE END Switch_OFF_GPIO */
-}
-
-#if(L2CAP_REQUEST_NEW_CONN_PARAM != 0)  
-void BLE_SVC_L2CAP_Conn_Update(uint16_t Connection_Handle)
-{
-/* USER CODE BEGIN BLE_SVC_L2CAP_Conn_Update_1 */
-
-/* USER CODE END BLE_SVC_L2CAP_Conn_Update_1 */
-  if(mutex == 1) { 
-    mutex = 0;
-    index_con_int = (index_con_int + 1)%SIZE_TAB_CONN_INT;
-    uint16_t interval_min = CONN_P(tab_conn_interval[index_con_int]);
-    uint16_t interval_max = CONN_P(tab_conn_interval[index_con_int]);
-    uint16_t slave_latency = L2CAP_SLAVE_LATENCY;
-    uint16_t timeout_multiplier = L2CAP_TIMEOUT_MULTIPLIER;
-    tBleStatus result;
-
-    result = aci_l2cap_connection_parameter_update_req(BleApplicationContext.BleApplicationContext_legacy.connectionHandle,
-                                                       interval_min, interval_max,
-                                                       slave_latency, timeout_multiplier);
-    if( result == BLE_STATUS_SUCCESS )
-    {
-      APP_DBG_MSG("BLE_SVC_L2CAP_Conn_Update(), Successfully \r\n\r");
-    }
-    else
-    {
-      APP_DBG_MSG("BLE_SVC_L2CAP_Conn_Update(), Failed \r\n\r");
-    }
-  }
-/* USER CODE BEGIN BLE_SVC_L2CAP_Conn_Update_2 */
-
-/* USER CODE END BLE_SVC_L2CAP_Conn_Update_2 */
-  return;
-}
-#endif
-
-#if (L2CAP_REQUEST_NEW_CONN_PARAM != 0 )
-static void Connection_Interval_Update_Req( void )
-{
-  if (BleApplicationContext.Device_Connection_Status != APP_BLE_FAST_ADV && BleApplicationContext.Device_Connection_Status != APP_BLE_IDLE)
+  for(;;)
   {
-    BLE_SVC_L2CAP_Conn_Update(BleApplicationContext.BleApplicationContext_legacy.connectionHandle);
+    osThreadFlagsWait( 1, osFlagsWaitAny, osWaitForever);
+    hci_user_evt_proc( );
   }
-  return;
 }
-#endif
 
 /* USER CODE BEGIN FD_SPECIFIC_FUNCTIONS */
 
@@ -1151,19 +1023,22 @@ static void Connection_Interval_Update_Req( void )
  *************************************************************/
 void hci_notify_asynch_evt(void* pdata)
 {
-  UTIL_SEQ_SetTask(1 << CFG_TASK_HCI_ASYNCH_EVT_ID, CFG_SCH_PRIO_0);
+  UNUSED(pdata);
+  osThreadFlagsSet( HciUserEvtProcessId, 1 );
   return;
 }
 
 void hci_cmd_resp_release(uint32_t flag)
 {
-  UTIL_SEQ_SetEvt(1 << CFG_IDLEEVT_HCI_CMD_EVT_RSP_ID);
+  UNUSED(flag);
+  osSemaphoreRelease( SemHciId );
   return;
 }
 
 void hci_cmd_resp_wait(uint32_t timeout)
 {
-  UTIL_SEQ_WaitEvt(1 << CFG_IDLEEVT_HCI_CMD_EVT_RSP_ID);
+  UNUSED(timeout);
+  osSemaphoreAcquire( SemHciId, osWaitForever );
   return;
 }
 
@@ -1187,27 +1062,14 @@ static void BLE_UserEvtRx( void * pPayload )
 
 static void BLE_StatusNot( HCI_TL_CmdStatus_t status )
 {
-  uint32_t task_id_list;
   switch (status)
   {
     case HCI_TL_CmdBusy:
-      /**
-       * All tasks that may send an aci/hci commands shall be listed here
-       * This is to prevent a new command is sent while one is already pending
-       */
-      task_id_list = (1 << CFG_LAST_TASK_ID_WITH_HCICMD) - 1;
-      UTIL_SEQ_PauseTask(task_id_list);
-
+      osMutexAcquire( MtxHciId, osWaitForever );
       break;
 
     case HCI_TL_CmdAvailable:
-      /**
-       * All tasks that may send an aci/hci commands shall be listed here
-       * This is to prevent a new command is sent while one is already pending
-       */
-      task_id_list = (1 << CFG_LAST_TASK_ID_WITH_HCICMD) - 1;
-      UTIL_SEQ_ResumeTask(task_id_list);
-
+      osMutexRelease( MtxHciId );
       break;
 
     default:

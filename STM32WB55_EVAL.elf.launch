@@ -11,7 +11,7 @@
 <booleanAttribute key="com.st.stm32cube.ide.mcu.debug.jlink.scan_chain_auto" value="true"/>
 <intAttribute key="com.st.stm32cube.ide.mcu.debug.jlink.scan_chain_irpre" value="0"/>
 <intAttribute key="com.st.stm32cube.ide.mcu.debug.jlink.scan_chain_pos" value="0"/>
-<stringAttribute key="com.st.stm32cube.ide.mcu.debug.jlink.selected_rtos" value="No RTOS"/>
+<stringAttribute key="com.st.stm32cube.ide.mcu.debug.jlink.selected_rtos" value="RTOSPlugin_FreeRTOS"/>
 <stringAttribute key="com.st.stm32cube.ide.mcu.debug.launch.access_port_id" value="0"/>
 <booleanAttribute key="com.st.stm32cube.ide.mcu.debug.launch.enable_live_expr" value="true"/>
 <booleanAttribute key="com.st.stm32cube.ide.mcu.debug.launch.enable_swv" value="true"/>
@@ -93,7 +93,9 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
 </listAttribute>
+<booleanAttribute key="org.eclipse.debug.core.capture_output" value="false"/>
+<booleanAttribute key="org.eclipse.debug.ui.ATTR_CONSOLE_OUTPUT_ON" value="false"/>
 <stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;/&gt;&#13;&#10;"/>
 <stringAttribute key="process_factory_id" value="org.eclipse.cdt.dsf.gdb.GdbProcessFactory"/>
-<stringAttribute key="saved_expressions&lt;seperator&gt;Unknown" value="0x20000004,0x2002fdf3"/>
+<stringAttribute key="saved_expressions&lt;seperator&gt;Unknown" value="0x20000004,0x2002fdf3,0x200017a8"/>
 </launchConfiguration>

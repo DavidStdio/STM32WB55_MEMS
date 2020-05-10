@@ -78,8 +78,13 @@ void HAL_MspInit(void)
   __HAL_RCC_HSEM_CLK_ENABLE();
 
   /* System interrupt init*/
+  /* PendSV_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
 
   /* USER CODE BEGIN MspInit 1 */
+
+  HAL_NVIC_SetPriority(IPCC_C1_RX_IRQn , 6, 0);
+  HAL_NVIC_SetPriority(IPCC_C1_TX_IRQn , 6, 0);
 
   /* USER CODE END MspInit 1 */
 }

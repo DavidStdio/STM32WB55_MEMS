@@ -24,7 +24,7 @@
 #include "dbg_trace.h"
 #include "ble.h"
 #include "p2p_server_app.h"
-#include "stm32_seq.h"
+//#include "stm32_seq.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -142,7 +142,7 @@ void P2PS_APP_Notification(P2PS_APP_ConnHandle_Not_evt_t *pNotification)
 void P2PS_APP_Init(void)
 {
 /* USER CODE BEGIN P2PS_APP_Init */
-	UTIL_SEQ_RegTask(1<<CFG_TASK_SW1_BUTTON_PUSHED_ID, UTIL_SEQ_RFU , P2PS_Send_Notification);
+	//UTIL_SEQ_RegTask(1<<CFG_TASK_SW1_BUTTON_PUSHED_ID, UTIL_SEQ_RFU , P2PS_Send_Notification);
 /* USER CODE END P2PS_APP_Init */
   return;
 }

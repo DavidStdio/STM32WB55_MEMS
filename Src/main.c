@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "dma.h"
 #include "i2c.h"
 #include "rf.h"
@@ -31,7 +32,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stm32_seq.h"
+//#include "stm32_seq.h"
 #include <ism330dlc_reg.h>
 /* USER CODE END Includes */
 
@@ -58,6 +59,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -89,6 +91,10 @@ stmdev_ctx_t dev_ctx;
 
 static void platform_delay(uint32_t ms);
 
+int __io_putchar(int ch)
+{
+	ITM_SendChar(ch);
+}
 /* USER CODE END 0 */
 
 /**
@@ -125,7 +131,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  UTIL_SEQ_Init();
+  //UTIL_SEQ_Init();
 
   dev_ctx.write_reg = platform_write;
   dev_ctx.read_reg = platform_read;
@@ -135,33 +141,33 @@ int main(void)
   platform_delay(BOOT_TIME);
 
   /* Check device ID */
-  whoamI = 0;
+  //whoamI = 0;
 
-  while( whoamI != ISM330DLC_ID )
-  {
-	  ism330dlc_device_id_get(&dev_ctx, &whoamI);
-  }
+  //while( whoamI != ISM330DLC_ID )
+  //{
+//	  ism330dlc_device_id_get(&dev_ctx, &whoamI);
+  //}
 
-  /* Restore default configuration */
-  ism330dlc_reset_set(&dev_ctx, PROPERTY_ENABLE);
-  do {
-    ism330dlc_reset_get(&dev_ctx, &rst);
-  } while (rst);
+  ///* Restore default configuration */
+  //ism330dlc_reset_set(&dev_ctx, PROPERTY_ENABLE);
+  //do {
+  //  ism330dlc_reset_get(&dev_ctx, &rst);
+  //} while (rst);
 
-  /* Enable Block Data Update */
-  ism330dlc_block_data_update_set(&dev_ctx, PROPERTY_ENABLE);
+  ///* Enable Block Data Update */
+  //ism330dlc_block_data_update_set(&dev_ctx, PROPERTY_ENABLE);
 
-  /* Set Output Data Rate */
-  /* davidbo
-  ism330dlc_xl_data_rate_set(&dev_ctx, ISM330DLC_XL_ODR_12Hz5);
-  */
-  ism330dlc_gy_data_rate_set(&dev_ctx, ISM330DLC_GY_ODR_12Hz5);
+  ///* Set Output Data Rate */
+  ///* davidbo
+  //ism330dlc_xl_data_rate_set(&dev_ctx, ISM330DLC_XL_ODR_12Hz5);
+  //*/
+  //ism330dlc_gy_data_rate_set(&dev_ctx, ISM330DLC_GY_ODR_12Hz5);
 
-  /* Set full scale */
-  /* davidbo
-  ism330dlc_xl_full_scale_set(&dev_ctx, ISM330DLC_2g);
-  */
-  ism330dlc_gy_full_scale_set(&dev_ctx, ISM330DLC_2000dps);
+  ///* Set full scale */
+  ///* davidbo
+  //ism330dlc_xl_full_scale_set(&dev_ctx, ISM330DLC_2g);
+  //*/
+  //ism330dlc_gy_full_scale_set(&dev_ctx, ISM330DLC_2000dps);
 
   /* Configure filtering chain(No aux interface) */
   /* Accelerometer - analog filter */
@@ -182,12 +188,18 @@ int main(void)
   //ism330dlc_xl_hp_bandwidth_set(&dev_ctx, ISM330DLC_XL_HP_ODR_DIV_100);
 
   /* Gyroscope - filtering chain */
-  ism330dlc_gy_band_pass_set(&dev_ctx, ISM330DLC_HP_260mHz_LP1_STRONG);
+  //ism330dlc_gy_band_pass_set(&dev_ctx, ISM330DLC_HP_260mHz_LP1_STRONG);
 
   /* USER CODE END 2 */
 
-  /* Init code for STM32_WPAN */
+  /* Init scheduler */
+  osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
+  MX_FREERTOS_Init(); 
   APPE_Init();
+  /* Start scheduler */
+  osKernelStart();
+ 
+  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -223,7 +235,7 @@ int main(void)
      // tx_com( tx_buffer, strlen( (char const*)tx_buffer ) );
     }
 
-	  UTIL_SEQ_Run(~0);
+	  //UTIL_SEQ_Run(~0);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -314,6 +326,27 @@ static void platform_delay(uint32_t ms)
 }
 
 /* USER CODE END 4 */
+
+ /**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM17 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM17) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

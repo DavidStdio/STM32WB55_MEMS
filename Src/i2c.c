@@ -22,7 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 #include <ism330dlc_reg.h>
-#include "stm32_seq.h"
+//#include "stm32_seq.h"
 /* USER CODE END 0 */
 
 I2C_HandleTypeDef hi2c1;
@@ -122,9 +122,9 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
     __HAL_LINKDMA(i2cHandle,hdmatx,hdma_i2c1_tx);
 
     /* I2C1 interrupt Init */
-    HAL_NVIC_SetPriority(I2C1_EV_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(I2C1_EV_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
-    HAL_NVIC_SetPriority(I2C1_ER_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(I2C1_ER_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
   /* USER CODE BEGIN I2C1_MspInit 1 */
 
@@ -166,7 +166,13 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 
 void i2c_cmd_resp_release(uint32_t flag)
 {
-  UTIL_SEQ_SetEvt( 1<< CFG_IDLEEVT_I2C_CMD_EVT_RSP_ID  );
+  //UTIL_SEQ_SetEvt( 1<< CFG_IDLEEVT_I2C_CMD_EVT_RSP_ID  );
+  return;
+}
+
+void i2c_cmd_resp_wait(uint32_t timeout)
+{
+  //UTIL_SEQ_WaitEvt( 1<< CFG_IDLEEVT_I2C_CMD_EVT_RSP_ID );
   return;
 }
 
@@ -178,13 +184,6 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 	i2c_cmd_resp_release(0);
-}
-
-
-void i2c_cmd_resp_wait(uint32_t timeout)
-{
-  UTIL_SEQ_WaitEvt( 1<< CFG_IDLEEVT_I2C_CMD_EVT_RSP_ID );
-  return;
 }
 
 int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,

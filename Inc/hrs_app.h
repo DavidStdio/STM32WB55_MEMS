@@ -1,8 +1,8 @@
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * File Name          : SEQUENCER.h
-  * Description        : This file provides code for the configuration
-  *                      of the SEQUENCER instances.
+  * File Name          : hrs_app.h
+  * Description        : Header for hrs_application.c module
   ******************************************************************************
   * @attention
   *
@@ -16,41 +16,53 @@
   *
   ******************************************************************************
   */
+/* USER CODE END Header */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __sequencer_H
-#define __sequencer_H
+#ifndef __HRS_APP_H
+#define __HRS_APP_H
+
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 
+/* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
-/* USER CODE BEGIN Private defines */
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
-/* USER CODE END Private defines */
+/* USER CODE END ET */
 
-void MX_SEQUENCER_Init(void);
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
 
-/* USER CODE BEGIN Prototypes */
+/* USER CODE END EC */
 
-/* USER CODE END Prototypes */
+/* External variables --------------------------------------------------------*/
+/* USER CODE BEGIN EV */
+
+/* USER CODE END EV */
+
+/* Exported macros ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
+
+/* USER CODE END EM */
+
+/* Exported functions ---------------------------------------------*/
+void HRSAPP_Init( void );
+/* USER CODE BEGIN EF */
+
+/* USER CODE END EF */
 
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ sequencer_H */
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
+#endif /*__HRS_APP_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
