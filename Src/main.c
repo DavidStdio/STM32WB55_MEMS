@@ -33,6 +33,8 @@
 /* USER CODE BEGIN Includes */
 #include "stm32_seq.h"
 #include <ism330dlc_reg.h>
+#include "diagnostics_utils.h"
+#include "SEGGER_RTT.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -114,7 +116,8 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  dwt_cycle_counter_init();
+  SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */

@@ -25,7 +25,7 @@
 #include "hw.h"
 #include "hw_conf.h"
 #include "hw_if.h"
-
+#include "SEGGER_RTT.h"
 /******************************************************************************
  * Application Config
  ******************************************************************************/
@@ -450,7 +450,9 @@ typedef enum
 #if (CFG_DEBUG_APP_TRACE != 0)
 #define APP_DBG_MSG                 PRINT_MESG_DBG
 #else
-#define APP_DBG_MSG                 PRINT_NO_MESG
+#define SEGGER_PRINT_MESG_DBG(...)         do{SEGGER_RTT_printf(0,__VA_ARGS__);}while(0);
+#define APP_DBG_MSG      SEGGER_PRINT_MESG_DBG
+
 #endif
 
 #if ( (CFG_DEBUG_BLE_TRACE != 0) || (CFG_DEBUG_APP_TRACE != 0) )
