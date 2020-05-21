@@ -40,7 +40,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "diagnostics_utils.h"
+#include "SEGGER_RTT.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -576,9 +577,15 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
 #if(RADIO_ACTIVITY_EVENT != 0)
         case ACI_HAL_END_OF_RADIO_ACTIVITY_VSEVT_CODE:
         /* USER CODE BEGIN RADIO_ACTIVITY_EVENT*/
+		{
+			static uint32_t prev_timestamp = 0;
+        	SEGGER_RTT_printf(0, "%d RAE\n", cycles_to_usec(GET_TIMESTAMP()-prev_timestamp));
+        	prev_timestamp = GET_TIMESTAMP();
+
         	HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
         	HAL_Delay(25);
         	HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+		}
 
         /* USER CODE END RADIO_ACTIVITY_EVENT*/
           break; /* RADIO_ACTIVITY_EVENT */
