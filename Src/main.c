@@ -111,15 +111,15 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  vTraceEnable( TRC_INIT );
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-  dwt_cycle_counter_init();
+  //SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+  //dwt_cycle_counter_init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */

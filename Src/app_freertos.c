@@ -167,11 +167,6 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
  	Custom_App_Context.Motion_Notification_Status = 0;
-	/* Create timer to get the AccGyroMag params and update charecteristic */
-	HW_TS_Create(CFG_TIM_PROC_ID_ISR,
-      &(Custom_App_Context.AccGyroMag_Update_Timer_Id),
-      hw_ts_Repeated,
-      MOTENV_AccGyroMagUpdate_Timer_Callback);
   /* USER CODE END RTOS_THREADS */
 
 }
@@ -185,6 +180,12 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartImuTask */
 void StartImuTask(void *argument)
 {
+	/* Create timer to get the AccGyroMag params and update charecteristic */
+	HW_TS_Create(CFG_TIM_PROC_ID_ISR,
+      &(Custom_App_Context.AccGyroMag_Update_Timer_Id),
+      hw_ts_Repeated,
+      MOTENV_AccGyroMagUpdate_Timer_Callback);
+
   dev_ctx.write_reg = platform_write;
   dev_ctx.read_reg = platform_read;
   dev_ctx.handle = &SENSOR_BUS;
